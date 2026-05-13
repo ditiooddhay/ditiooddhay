@@ -202,11 +202,32 @@
 
   <!-- REVIEWS -->
   <div class="panel" id="panel-reviews">
-    <div class="panel-title">রিভিউ <em>অনুমোদন</em></div>
-    <div class="panel-sub">নতুন মন্তব্য অনুমোদন করুন বা মুছুন</div>
+    <div class="panel-title">রিভিউ <em>পরিচালনা</em></div>
+    <div class="panel-sub">Facebook screenshot আপলোড ও মন্তব্য অনুমোদন করুন</div>
+
+    <!-- SCREENSHOT UPLOAD -->
+    <div class="form-card" style="margin-bottom:1.5rem">
+      <div class="form-section">&#128247; Facebook Screenshot আপলোড</div>
+      <div class="upload-area" style="padding:1.2rem;position:relative">
+        <input type="file" id="screenshotInput" multiple accept="image/*" onchange="uploadScreenshots(this.files)" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%">
+        <div style="font-size:1.8rem;opacity:.4;margin-bottom:.4rem">&#128247;</div>
+        <div class="upload-text"><strong>ক্লিক করুন</strong> — একাধিক screenshot একসাথে</div>
+      </div>
+      <div id="screenshotProgress" style="display:none;margin-top:.8rem">
+        <div class="progress-bar"><div class="progress-fill" id="screenshotFill"></div></div>
+        <div class="progress-text" id="screenshotText">আপলোড হচ্ছে...</div>
+      </div>
+      <div style="margin-top:1rem">
+        <div style="font-size:.65rem;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:.8rem">বর্তমান Screenshots</div>
+        <div id="screenshotList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:.5rem"></div>
+      </div>
+      <button class="btn-outline" onclick="loadScreenshots()" style="margin-top:.8rem;font-size:.78rem">&#8635; রিফ্রেশ করুন</button>
+    </div>
+
+    <!-- REVIEW APPROVAL -->
     <div style="display:flex;gap:.8rem;margin-bottom:1.5rem;flex-wrap:wrap">
-      <button class="btn-outline" onclick="loadReviewsPanel('pending')" id="btn-pending">⏳ অপেক্ষমান</button>
-      <button class="btn-outline" onclick="loadReviewsPanel('approved')" id="btn-approved">✓ অনুমোদিত</button>
+      <button class="btn-outline" onclick="loadReviewsPanel('pending')" id="btn-pending">&#9203; অপেক্ষমান</button>
+      <button class="btn-outline" onclick="loadReviewsPanel('approved')" id="btn-approved">&#10003; অনুমোদিত</button>
       <a href="reviews.html" target="_blank" class="btn-outline" style="text-decoration:none">রিভিউ পেজ &#8599;</a>
     </div>
     <div id="reviewsList"></div>
@@ -315,7 +336,7 @@ function switchTab(name) {
   if (name === 'dashboard') loadDashboard();
   if (name === 'manage') loadManage();
   if (name === 'team') loadTeamPanel();
-  if (name === 'reviews') loadReviewsPanel('pending');
+  if (name === 'reviews') { loadReviewsPanel('pending'); loadScreenshots(); }
 }
 
 // ─── LOADING ───
@@ -636,6 +657,57 @@ async function loadTeamPanel() {
       <button class="btn-red" onclick="deleteMember(${m.id})">&#128465;</button>
     </div>
   `).join('');
+}
+
+// ─── SCREENSHOTS ───
+async function loadScreenshots() {
+  const { data } = await sb.from('fb_screenshots').select('*').order('sort_order').order('created_at');
+  const list = document.getElementById('screenshotList');
+  if (!data || !data.length) {
+    list.innerHTML = '<div style="color:var(--text-muted);font-size:.8rem">কোনো screenshot নেই</div>';
+    return;
+  }
+  list.innerHTML = data.map(s => `
+    <div style="position:relative">
+      <img src="${s.image_url}" style="width:100%;aspect-ratio:9/16;object-fit:cover;border:1px solid rgba(201,168,76,.2)">
+      <button onclick="deleteScreenshot(${s.id})" style="position:absolute;top:2px;right:2px;background:rgba(220,50,50,.85);color:white;border:none;width:20px;height:20px;cursor:pointer;font-size:.7rem;display:flex;align-items:center;justify-content:center">&#10005;</button>
+    </div>
+  `).join('');
+}
+
+async function uploadScreenshots(files) {
+  if (!files.length) return;
+  const prog = document.getElementById('screenshotProgress');
+  const fill = document.getElementById('screenshotFill');
+  const text = document.getElementById('screenshotText');
+  prog.style.display = 'block';
+  let done = 0;
+  for (const file of Array.from(files)) {
+    try {
+      // Compress
+      const compressed = await compressImage(file, 800, 0.8);
+      const path = `screenshots/sc_${Date.now()}_${Math.random().toString(36).slice(2)}.jpg`;
+      const { error: upErr } = await sb.storage.from('images').upload(path, compressed, { contentType:'image/jpeg', upsert:true });
+      if (upErr) throw upErr;
+      const { data: urlData } = sb.storage.from('images').getPublicUrl(path);
+      const { data: existing } = await sb.from('fb_screenshots').select('id').order('sort_order', {ascending:false}).limit(1);
+      const nextOrder = existing && existing[0] ? (existing[0].sort_order || 0) + 1 : 0;
+      await sb.from('fb_screenshots').insert({ image_url: urlData.publicUrl, sort_order: nextOrder });
+      done++;
+      fill.style.width = (done / files.length * 100) + '%';
+      text.textContent = `${done}/${files.length} আপলোড হয়েছে`;
+    } catch(e) { showToast('সমস্যা: ' + e.message, 'error'); }
+  }
+  setTimeout(() => { prog.style.display = 'none'; fill.style.width = '0'; }, 1000);
+  showToast(`${done}টি screenshot আপলোড হয়েছে! ✓`, 'success');
+  loadScreenshots();
+}
+
+async function deleteScreenshot(id) {
+  if (!confirm('মুছে ফেলতে চান?')) return;
+  await sb.from('fb_screenshots').delete().eq('id', id);
+  loadScreenshots();
+  showToast('মুছে ফেলা হয়েছে।');
 }
 
 // ─── REVIEWS ───
