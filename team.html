@@ -11,17 +11,12 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root { --gold:#c9a84c; --gold-light:#e8c96d; --dark:#0e0c0a; --dark2:#1a1714; --dark3:#211e18; --cream:#f5efe6; --text-muted:#9a8f7e; }
   body { background: var(--dark); color: var(--cream); font-family: 'Hind Siliguri', sans-serif; min-height: 100vh; }
-  nav { position:fixed; top:0; left:0; right:0; z-index:100; background:rgba(14,12,10,0.95); backdrop-filter:blur(10px); border-bottom:1px solid rgba(201,168,76,0.15); padding:.9rem 2rem; display:flex; align-items:center; gap:1rem; }
-  .nav-logo { width:45px; height:auto; filter:drop-shadow(0 0 8px rgba(201,168,76,.3)); cursor:pointer; }
-  .nav-title { font-family:'Playfair Display',serif; font-size:1.1rem; color:var(--gold); }
-    .nav-back {
-    display:inline-flex; align-items:center; gap:.4rem;
-    color:var(--text-muted); text-decoration:none;
-    font-size:.72rem; letter-spacing:1.5px; text-transform:uppercase;
-    border:1px solid rgba(201,168,76,.2); padding:.38rem .9rem;
-    transition:all .25s; background:rgba(255,255,255,.02);
-  }
+  nav { position:fixed; top:0; left:0; right:0; z-index:100; background:rgba(14,12,10,.96); backdrop-filter:blur(12px); border-bottom:1px solid rgba(201,168,76,.12); padding:.85rem 1.5rem; display:flex; align-items:center; }
+  .nav-logo { width:38px; height:auto; filter:drop-shadow(0 0 8px rgba(201,168,76,.3)); cursor:pointer; flex-shrink:0; }
+  .nav-title { font-family:'Playfair Display',serif; font-size:1rem; color:var(--gold); letter-spacing:.5px; position:absolute; left:50%; transform:translateX(-50%); white-space:nowrap; }
+  .nav-back { display:inline-flex; align-items:center; gap:.4rem; color:var(--text-muted); text-decoration:none; font-size:.72rem; letter-spacing:1.5px; text-transform:uppercase; border:1px solid rgba(201,168,76,.2); padding:.38rem .9rem; transition:all .25s; background:rgba(255,255,255,.02); margin-left:auto; flex-shrink:0; }
   .nav-back:hover { color:var(--gold); border-color:rgba(201,168,76,.5); background:rgba(201,168,76,.06); }
+
   .page-hero { padding:7rem 2rem 3rem; text-align:center; background:radial-gradient(ellipse at 50% 0%,rgba(201,168,76,.1) 0%,transparent 70%); border-bottom:1px solid rgba(201,168,76,.1); }
   .page-badge { display:inline-block; font-size:.65rem; letter-spacing:4px; text-transform:uppercase; color:var(--gold); border:1px solid rgba(201,168,76,.35); padding:5px 18px; margin-bottom:1rem; }
   .page-title { font-family:'Playfair Display',serif; font-size:clamp(2rem,5vw,3rem); color:var(--cream); }
