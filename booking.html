@@ -524,10 +524,10 @@ function submitForm() {
   const name = document.getElementById('name').value.trim();
   const phone = document.getElementById('phone').value.trim();
   const address = document.getElementById('address').value.trim();
-  const weddingDate = document.getElementById('weddingDate').value;
   const advance = document.getElementById('advance').value;
+  const eventDates = getEventDates();
 
-  if (!name || !phone || !address || !weddingDate || !advance) {
+  if (!name || !phone || !address || !advance) {
     alert('অনুগ্রহ করে সব তারকা (*) চিহ্নিত ঘর পূরণ করুন।');
     return;
   }
