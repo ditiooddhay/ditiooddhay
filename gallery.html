@@ -137,13 +137,18 @@ async function loadAlbums(filter) {
   if (filter !== undefined) currentFilter = filter;
   const grid = document.getElementById('albumsGrid');
   grid.innerHTML = '<div class="loading-state"><div class="spinner"></div><p>লোড হচ্ছে...</p></div>';
-  let query = sb.from('albums').select('*').order('created_at', { ascending: false });
-  if (currentFilter !== 'all') query = query.eq('year', currentFilter);
-  const { data: albums } = await query;
-  if (!albums || albums.length === 0) {
-    grid.innerHTML = '<div class="empty-state"><div class="empty-icon">&#128247;</div><h3>এখনো কোনো অ্যালবাম নেই</h3></div>';
-    return;
-  }
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 12000);
+    let query = sb.from('albums').select('*').order('created_at', { ascending: false });
+    if (currentFilter !== 'all') query = query.eq('year', currentFilter);
+    const { data: albums, error } = await query;
+    clearTimeout(timeoutId);
+    if (error) throw error;
+    if (!albums || albums.length === 0) {
+      grid.innerHTML = '<div class="empty-state"><div class="empty-icon">&#128247;</div><h3>এখনো কোনো অ্যালবাম নেই</h3></div>';
+      return;
+    }
   grid.innerHTML = albums.map((a, i) => `
     <div class="album-card" style="animation-delay:${i*.08}s" onclick="openAlbum('${a.id}')">
       <div class="album-cover">
@@ -167,6 +172,13 @@ async function loadAlbums(filter) {
         ${y === 'all' ? 'সব অ্যালবাম' : y}
       </button>
     `).join('');
+  }
+  } catch(err) {
+    if (err.name === 'AbortError') {
+      grid.innerHTML = '<div class="empty-state"><div class="empty-icon">&#128247;</div><p style="margin-top:.5rem">সংযোগ ধীর। <button onclick="loadAlbums()" style="background:none;border:none;color:var(--gold);cursor:pointer;font-family:Hind Siliguri,sans-serif;font-size:.9rem;text-decoration:underline">আবার চেষ্টা করুন</button></p></div>';
+    } else {
+      grid.innerHTML = '<div class="empty-state"><div class="empty-icon">&#128247;</div><p style="margin-top:.5rem">লোড হয়নি। <button onclick="loadAlbums()" style="background:none;border:none;color:var(--gold);cursor:pointer;font-family:Hind Siliguri,sans-serif;font-size:.9rem;text-decoration:underline">আবার চেষ্টা করুন</button></p></div>';
+    }
   }
 }
 

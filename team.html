@@ -105,7 +105,9 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 async function loadTeam() {
-  const { data: founder } = await sb.from('team_founder').select('*').limit(1);
+  try {
+  const { data: founder, error: fErr } = await sb.from('team_founder').select('*').limit(1);
+  if (fErr) throw fErr;
   const fs = document.getElementById('founderSection');
   if (founder && founder[0]) {
     const f = founder[0];
@@ -137,6 +139,9 @@ async function loadTeam() {
       </div>
     </div>
   `).join('');
+  } catch(err) {
+    document.getElementById('founderSection').innerHTML = '<p style="color:var(--text-muted);padding:1rem 0">লোড হয়নি। <button onclick="loadTeam()" style="background:none;border:none;color:var(--gold);cursor:pointer;font-family:Hind Siliguri,sans-serif;text-decoration:underline">আবার চেষ্টা করুন</button></p>';
+  }
 }
 loadTeam();
 </script>

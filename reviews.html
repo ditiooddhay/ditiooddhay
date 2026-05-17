@@ -311,7 +311,9 @@ function setRating(n) {
 }
 
 async function loadReviews() {
-  const { data } = await sb.from('reviews').select('*').eq('approved', true).order('created_at', {ascending:false});
+  try {
+  const { data, error } = await sb.from('reviews').select('*').eq('approved', true).order('created_at', {ascending:false});
+  if (error) throw error;
   document.getElementById('totalReviews').textContent = ((data||[]).length + 6) + '+';
   const wrap = document.getElementById('pubReviews');
   if (!data || !data.length) {
