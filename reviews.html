@@ -360,6 +360,12 @@ async function submitReview() {
   btn.disabled=false; btn.textContent='&#10022; মন্তব্য পাঠান';
 }
 
+// Init on page load
+document.addEventListener('DOMContentLoaded', () => {
+  initSlider();
+  loadReviews();
+});
+
 
 </script>
 
