@@ -145,5 +145,15 @@ async function loadTeam() {
 }
 loadTeam();
 </script>
+
+
+<script>
+function hideLoader() {
+  var l = document.getElementById('pageLoader');
+  if (l) { l.style.opacity='0'; l.style.visibility='hidden'; l.style.pointerEvents='none'; }
+}
+window.addEventListener('load', function() { setTimeout(hideLoader, 400); });
+setTimeout(hideLoader, 4000);
+</script>
 </body>
 </html>

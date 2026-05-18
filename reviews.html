@@ -12,7 +12,7 @@
 :root{--gold:#c9a84c;--gold-light:#e8c96d;--dark:#0e0c0a;--dark2:#1a1714;--dark3:#211e18;--cream:#f5efe6;--text-muted:#9a8f7e}
 html{scroll-behavior:smooth}
 body{background:var(--dark);color:var(--cream);font-family:'Hind Siliguri',sans-serif;min-height:100vh}
-#pageLoader{position:fixed;inset:0;z-index:9999;background:#0e0c0a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.2rem;transition:opacity .5s,visibility .5s}
+#pageLoader{position:fixed;inset:0;z-index:9999;background:#0e0c0a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.2rem;transition:opacity .5s ease,visibility .5s ease}
 #pageLoader.hide{opacity:0;visibility:hidden}
 .loader-logo{width:90px;height:auto;filter:drop-shadow(0 0 20px rgba(201,168,76,.4));animation:loaderPulse 1.5s ease-in-out infinite}
 @keyframes loaderPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
@@ -333,6 +333,9 @@ async function loadReviews() {
       <div class="pub-text">"${r.comment}"</div>
     </div>
   `).join('');
+  } catch(err) {
+    document.getElementById('pubReviews').innerHTML = '<div class="empty-pub"><p>লোড হয়নি। <button onclick="loadReviews()" style="background:none;border:none;color:var(--gold);cursor:pointer;font-family:Hind Siliguri,sans-serif;text-decoration:underline">আবার চেষ্টা করুন</button></p></div>';
+  }
 }
 
 async function submitReview() {
@@ -357,8 +360,18 @@ async function submitReview() {
   btn.disabled=false; btn.textContent='&#10022; মন্তব্য পাঠান';
 }
 
-window.addEventListener('load', () => setTimeout(()=>{const l=document.getElementById('pageLoader');if(l)l.classList.add('hide');},400));
-document.addEventListener('DOMContentLoaded', () => { initSlider(); loadReviews(); });
+
+</script>
+
+
+
+<script>
+function hideLoader() {
+  var l = document.getElementById('pageLoader');
+  if (l) { l.style.opacity='0'; l.style.visibility='hidden'; l.style.pointerEvents='none'; }
+}
+window.addEventListener('load', function() { setTimeout(hideLoader, 400); });
+setTimeout(hideLoader, 4000);
 </script>
 </body>
 </html>

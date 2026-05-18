@@ -584,5 +584,25 @@ function submitForm() {
   });
 }
 </script>
+<script>
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const l = document.getElementById('pageLoader');
+    if (l) { l.style.opacity = '0'; l.style.visibility = 'hidden'; }
+  }, 500);
+});
+setTimeout(() => {
+  const l = document.getElementById('pageLoader');
+  if (l) { l.style.opacity = '0'; l.style.visibility = 'hidden'; }
+}, 3000);
+</script>
+<script>
+function hideLoader() {
+  var l = document.getElementById('pageLoader');
+  if (l) { l.style.opacity='0'; l.style.visibility='hidden'; l.style.pointerEvents='none'; }
+}
+window.addEventListener('load', function() { setTimeout(hideLoader, 400); });
+setTimeout(hideLoader, 4000);
+</script>
 </body>
 </html>

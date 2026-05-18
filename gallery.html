@@ -205,5 +205,15 @@ document.getElementById('fsOverlay').addEventListener('click', function(e) { if 
 document.addEventListener('keydown', e => { if (e.key==='Escape'){closeFs();closeAlbum();} if(e.key==='ArrowRight')fsNav(1); if(e.key==='ArrowLeft')fsNav(-1); });
 loadAlbums();
 </script>
+
+
+<script>
+function hideLoader() {
+  var l = document.getElementById('pageLoader');
+  if (l) { l.style.opacity='0'; l.style.visibility='hidden'; l.style.pointerEvents='none'; }
+}
+window.addEventListener('load', function() { setTimeout(hideLoader, 400); });
+setTimeout(hideLoader, 4000);
+</script>
 </body>
 </html>
