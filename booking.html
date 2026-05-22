@@ -206,6 +206,7 @@
   .loader-text { font-family: 'Hind Siliguri', sans-serif; font-size: .7rem; letter-spacing: 3px; text-transform: uppercase; color: rgba(201,168,76,.5); }
 
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -382,6 +383,7 @@
 // =============================================
 // ⚙️ এখানে আপনার Google Apps Script URL বসান
 // =============================================
+const sb = supabase.createClient("https://cqymtragfzyphgwfodbh.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNxeW10cmFnZnp5cGhnd2ZvZGJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMDgxNzQsImV4cCI6MjA5Mzg4NDE3NH0.Jkeyi-hA02od9fCzAPMFHzX5ZwdYgLjLjEQB5F12NZU");
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxCu0RhMye_Ylpx-sCRUbfBy2PLUhmtURjV59GskMoyIjM3bUAGXsO_cI3RLeeGIYMJ/exec";
 // =============================================
 
@@ -591,6 +593,8 @@ function submitForm() {
     body: JSON.stringify(data)
   })
   .then(() => {
+    // Save to Supabase schedule_details
+    saveToSchedule(name, address, getEventDates(), data.package, parseFloat(advance) || 0);
     document.getElementById('successMsg').style.display = 'block';
     document.getElementById('successMsg').scrollIntoView({behavior:'smooth', block:'center'});
   })
@@ -602,6 +606,29 @@ function submitForm() {
     btnText.style.display = 'block';
     loader.style.display = 'none';
   });
+}
+
+async function saveToSchedule(name, address, eventDates, pkg, advance) {
+  try {
+    const paid = advance > 0 ? [{ amount: advance, date: new Date().toISOString().split('T')[0], id: Date.now() }] : [];
+    await sb.from('schedule_details').insert({
+      client_name: name,
+      address: address,
+      event_date: eventDates || '',
+      package: pkg,
+      total_amount: 0,
+      payments: paid,
+      due_amount: 0,
+      assigned_team: [],
+      team_payments: [],
+      office_amount: 0,
+      notes: 'বুকিং ফর্ম থেকে এন্ট্রি',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    });
+  } catch(e) {
+    console.log('Schedule save error:', e);
+  }
 }
 </script>
 <script>
