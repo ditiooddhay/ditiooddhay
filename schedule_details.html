@@ -90,10 +90,10 @@ nav{position:sticky;top:0;z-index:100;background:rgba(14,12,10,.97);border-botto
 
 /* PAYMENT LOG */
 .pay-log{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
-.pay-item{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);padding:.6rem .9rem;font-size:.82rem}
+.pay-item{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);padding:.6rem .9rem;font-size:.82rem;flex-wrap:wrap;gap:.4rem}
 .pay-item-left{color:var(--cream)}
 .pay-item-date{font-size:.7rem;color:var(--text-muted)}
-.pay-item-amt{color:var(--green);font-weight:600}
+.pay-item-amt{color:var(--green);font-weight:600;white-space:nowrap}
 .pay-remove{background:none;border:none;color:rgba(220,80,80,.6);cursor:pointer;font-size:.75rem;padding:.2rem .4rem}
 
 /* TEAM ASSIGN */
@@ -221,9 +221,15 @@ nav{position:sticky;top:0;z-index:100;background:rgba(14,12,10,.97);border-botto
           <label class="form-label">ঠিকানা</label>
           <input type="text" class="form-input" id="fAddress" placeholder="গ্রাম/উপজেলা">
         </div>
-        <div class="form-group">
-          <label class="form-label">ইভেন্ট তারিখ *</label>
-          <input type="date" class="form-input" id="fDate">
+        <div class="form-group full">
+          <label class="form-label">ইভেন্ট তারিখ * (একাধিক তারিখ যোগ করতে পারবেন)</label>
+          <div id="eventDatesWrap">
+            <div class="date-row" style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem">
+              <input type="date" class="form-input" style="flex:1">
+              <span style="font-size:.72rem;color:var(--text-muted);white-space:nowrap;min-width:2.5rem">দিন ১</span>
+            </div>
+          </div>
+          <button type="button" onclick="addEventDate()" style="background:none;border:1px solid rgba(201,168,76,.25);color:var(--text-muted);padding:.4rem 1rem;font-family:'Hind Siliguri',sans-serif;font-size:.78rem;cursor:pointer;margin-top:.3rem;transition:all .25s">+ আরেকটি দিন যোগ করুন</button>
         </div>
         <div class="form-group">
           <label class="form-label">প্যাকেজ</label>
@@ -465,7 +471,7 @@ function showAddForm() {
   document.getElementById('formTitle').textContent = 'নতুন এন্ট্রি';
   document.getElementById('fName').value = '';
   document.getElementById('fAddress').value = '';
-  document.getElementById('fDate').value = '';
+  setEventDatesValue('');
   document.getElementById('fPackage').value = '';
   document.getElementById('fTotal').value = '';
   document.getElementById('fNotes').value = '';
@@ -592,11 +598,71 @@ function renderPayDist() {
   calcOffice();
 }
 
+function applyOfficePct() {
+  const pct = parseFloat(document.getElementById('officePct').value) || 0;
+  const paid = tempPayments.reduce((s,p) => s + p.amount, 0);
+  const officeAmt = Math.round(paid * pct / 100);
+  const remaining = paid - officeAmt;
+  // Distribute remaining equally among team members
+  if (tempTeam.length > 0) {
+    const perPerson = Math.round(remaining / tempTeam.length);
+    tempTeam.forEach(t => {
+      const name = t.name || t;
+      tempPayDist[name] = perPerson;
+    });
+    renderPayDist();
+  }
+  calcOffice();
+}
+
 function calcOffice() {
   const paid = tempPayments.reduce((s,p) => s + p.amount, 0);
   const distTotal = Object.values(tempPayDist).reduce((s,v) => s + (v||0), 0);
   const office = Math.max(0, paid - distTotal);
   document.getElementById('officeAmount').textContent = '৳ ' + office.toLocaleString();
+}
+
+// ── EVENT DATES ──
+let eventDateCount = 1;
+function addEventDate() {
+  eventDateCount++;
+  const wrap = document.getElementById('eventDatesWrap');
+  const row = document.createElement('div');
+  row.style.cssText = 'display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem';
+  row.innerHTML = `
+    <input type="date" class="form-input" style="flex:1">
+    <span style="font-size:.72rem;color:var(--text-muted);white-space:nowrap;min-width:2.5rem">দিন ${eventDateCount}</span>
+    <button type="button" onclick="this.parentElement.remove();reNumberDates()" style="background:none;border:1px solid rgba(220,80,80,.3);color:#e07070;padding:.3rem .6rem;cursor:pointer;font-size:.75rem">✕</button>
+  `;
+  wrap.appendChild(row);
+}
+function reNumberDates() {
+  document.querySelectorAll('#eventDatesWrap > div').forEach((row, i) => {
+    const span = row.querySelector('span');
+    if (span) span.textContent = `দিন ${i+1}`;
+  });
+  eventDateCount = document.querySelectorAll('#eventDatesWrap > div').length;
+}
+function getEventDatesValue() {
+  return [...document.querySelectorAll('#eventDatesWrap input[type=date]')]
+    .map(i => i.value).filter(Boolean).join(', ');
+}
+function setEventDatesValue(dateStr) {
+  const wrap = document.getElementById('eventDatesWrap');
+  wrap.innerHTML = '';
+  eventDateCount = 0;
+  const dates = dateStr ? dateStr.split(',').map(d => d.trim()).filter(Boolean) : [''];
+  dates.forEach((d, i) => {
+    eventDateCount = i + 1;
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem';
+    row.innerHTML = `
+      <input type="date" class="form-input" value="${d}" style="flex:1">
+      <span style="font-size:.72rem;color:var(--text-muted);white-space:nowrap;min-width:2.5rem">দিন ${i+1}</span>
+      ${i > 0 ? `<button type="button" onclick="this.parentElement.remove();reNumberDates()" style="background:none;border:1px solid rgba(220,80,80,.3);color:#e07070;padding:.3rem .6rem;cursor:pointer;font-size:.75rem">✕</button>` : ''}
+    `;
+    wrap.appendChild(row);
+  });
 }
 
 // ── SAVE ──
@@ -614,7 +680,7 @@ async function saveEntry() {
     const payload = {
       client_name: name,
       address: document.getElementById('fAddress').value.trim(),
-      event_date: document.getElementById('fDate').value,
+      event_date: getEventDatesValue(),
       package: document.getElementById('fPackage').value.trim(),
       total_amount: total,
       payments: tempPayments,
@@ -700,7 +766,7 @@ function editCurrent() {
   document.getElementById('formTitle').textContent = 'সম্পাদনা — ' + b.client_name;
   document.getElementById('fName').value = b.client_name || '';
   document.getElementById('fAddress').value = b.address || '';
-  document.getElementById('fDate').value = b.event_date || '';
+  setEventDatesValue(b.event_date || '');
   document.getElementById('fPackage').value = b.package || '';
   document.getElementById('fTotal').value = b.total_amount || '';
   document.getElementById('fNotes').value = b.notes || '';

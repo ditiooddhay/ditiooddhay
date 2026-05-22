@@ -20,7 +20,6 @@
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="দ্বিতীয় অধ্যায় ওয়েডিং ফটোগ্রাফি">
   <meta property="og:locale" content="bn_BD">
-  <meta property="fb:app_id" content="">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="শিডিউল | দ্বিতীয় অধ্যায় ওয়েডিং ফটোগ্রাফি">
   <meta name="twitter:description" content="আমরা কোন দিন ফাঁকা আছি দেখুন এবং এখনই বুকিং করুন — দ্বিতীয় অধ্যায়, পঞ্চগড়।">
@@ -193,22 +192,22 @@ const BN_DAYS = ['রবি','সোম','মঙ্গল','বুধ','বৃ�
 let currentYear = new Date().getFullYear();
 let currentMonth = new Date().getMonth();
 let bookingData = {}; // { 'YYYY-MM-DD': count }
+let bookingNames = {}; // { 'YYYY-MM-DD': [names] }
 
 async function loadBookings() {
   try {
-    const start = new Date(currentYear, currentMonth, 1).toISOString().split('T')[0];
-    const end = new Date(currentYear, currentMonth + 1, 0).toISOString().split('T')[0];
-    
-    const { data } = await sb.from('bookings').select('wedding_date').gte('wedding_date', start).lte('wedding_date', end);
+    const { data } = await sb.from('schedule_details').select('event_date, client_name, package');
     
     bookingData = {};
+    bookingNames = {};
     if (data) {
       data.forEach(b => {
-        if (b.wedding_date) {
-          // Handle comma-separated dates (multi-day events)
-          const dates = b.wedding_date.split(',').map(d => d.trim());
+        if (b.event_date) {
+          const dates = b.event_date.split(',').map(d => d.trim()).filter(Boolean);
           dates.forEach(d => {
-            if (d) bookingData[d] = (bookingData[d] || 0) + 1;
+            bookingData[d] = (bookingData[d] || 0) + 1;
+            if (!bookingNames[d]) bookingNames[d] = [];
+            bookingNames[d].push(b.client_name || '—');
           });
         }
       });
@@ -306,22 +305,27 @@ function showDetail(dateStr, booked, isPast) {
 async function loadUpcoming() {
   try {
     const todayStr = new Date().toISOString().split('T')[0];
-    const { data } = await sb.from('bookings')
-      .select('name, wedding_date, package')
-      .gte('wedding_date', todayStr)
-      .order('wedding_date', {ascending: true})
-      .limit(5);
+    const { data } = await sb.from('schedule_details')
+      .select('client_name, event_date, package')
+      .order('event_date', {ascending: true})
+      .limit(10);
 
     const list = document.getElementById('upcomingList');
-    if (!data || !data.length) {
+    const upcoming = (data||[]).filter(b => {
+      if (!b.event_date) return false;
+      const firstDate = b.event_date.split(',')[0].trim();
+      return firstDate >= todayStr;
+    }).slice(0, 5);
+
+    if (!upcoming.length) {
       list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text-muted)">কোনো আসন্ন বুকিং নেই</div>';
       return;
     }
-    list.innerHTML = data.map(b => {
-      const d = b.wedding_date ? b.wedding_date.split(',')[0].trim() : '';
+    list.innerHTML = upcoming.map(b => {
+      const d = b.event_date ? b.event_date.split(',')[0].trim() : '';
       return `<div class="upcoming-item">
         <div class="upcoming-date">${d}</div>
-        <div class="upcoming-info">${b.package || 'প্যাকেজ নির্ধারিত নয়'}</div>
+        <div class="upcoming-info">${b.client_name||'—'} · ${b.package || '—'}</div>
         <span class="upcoming-badge" style="color:var(--gold);border-color:rgba(201,168,76,.3)">বুকড</span>
       </div>`;
     }).join('');
