@@ -425,11 +425,13 @@ function renderList() {
 
   let filtered = allBookings.filter(b => {
     if (month && b.event_date) {
-      const m = new Date(b.event_date).getMonth() + 1;
+      const fd = b.event_date.split(',')[0].trim();
+      const m = new Date(fd + 'T00:00:00').getMonth() + 1;
       if (m != month) return false;
     }
     if (year && b.event_date) {
-      const y = new Date(b.event_date).getFullYear();
+      const fd = b.event_date.split(',')[0].trim();
+      const y = new Date(fd + 'T00:00:00').getFullYear();
       if (y != year) return false;
     }
     if (status === 'due' && !(b.due_amount > 0)) return false;
@@ -453,7 +455,7 @@ function renderList() {
       <div class="booking-card-top">
         <div>
           <div class="booking-name">${b.client_name || '—'}</div>
-          <div class="booking-date">&#128197; ${dateStr} · ${b.package || '—'}</div>
+          <div class="booking-date">&#128197; ${allDates.length > 1 ? allDates.join(' • ') : dateStr} · ${b.package || '—'}</div>
           ${team ? `<div class="booking-meta">&#128101; ${team}</div>` : ''}
         </div>
         <div style="text-align:right">
