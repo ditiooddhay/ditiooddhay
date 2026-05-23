@@ -21,7 +21,6 @@
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="দ্বিতীয় অধ্যায় ওয়েডিং ফটোগ্রাফি">
   <meta property="og:locale" content="bn_BD">
-  <meta property="fb:app_id" content="">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="আমাদের কাজ | দ্বিতীয় অধ্যায় ওয়েডিং ফটোগ্রাফি">
   <meta name="twitter:description" content="দ্বিতীয় অধ্যায়ের ওয়েডিং ফটোগ্রাফি অ্যালবাম — প্রতিটি বিয়ে একটি অনন্য গল্প।">
@@ -53,6 +52,22 @@
   .filter-btn:hover, .filter-btn.active { border-color:var(--gold); color:var(--gold); background:rgba(201,168,76,.08); }
   .albums-wrap { max-width:1100px; margin:2rem auto 4rem; padding:0 1.5rem; }
   .albums-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:1.5rem; }
+  .albums-grid.grid-view { grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); gap:.5rem; }
+  .albums-grid.grid-view .album-card { border-radius:0; }
+  .albums-grid.grid-view .album-cover { height:160px; }
+  .albums-grid.grid-view .album-info { padding:.6rem .7rem; }
+  .albums-grid.grid-view .album-name { font-size:.85rem; }
+  .albums-grid.grid-view .album-meta { font-size:.65rem; }
+  @media(max-width:600px) {
+    .albums-grid { grid-template-columns:1fr; }
+    .albums-grid.grid-view { grid-template-columns:repeat(3,1fr); }
+    .albums-grid.grid-view .album-cover { height:120px; }
+    .albums-grid.grid-view .album-info { display:none; }
+    .albums-grid.grid-view .album-count { font-size:.6rem; padding:2px 6px; }
+  }
+  .view-toggle { display:flex; gap:.4rem; margin-left:auto; }
+  .view-btn { background:none; border:1px solid rgba(201,168,76,.2); color:var(--text-muted); width:34px; height:34px; cursor:pointer; transition:all .25s; display:flex; align-items:center; justify-content:center; font-size:.9rem; }
+  .view-btn.active { border-color:var(--gold); color:var(--gold); background:rgba(201,168,76,.08); }
   .album-card { cursor:pointer; overflow:hidden; background:var(--dark2); border:1px solid rgba(201,168,76,.15); transition:all .35s; animation:fadeUp .6s ease both; }
   .album-card:hover { border-color:var(--gold); transform:translateY(-4px); box-shadow:0 16px 40px rgba(0,0,0,.5); }
   .album-cover { position:relative; height:200px; overflow:hidden; background:var(--dark3); }
@@ -127,7 +142,13 @@
   <div class="divider"><div class="dl"></div><div class="dd"></div><div class="dl dr"></div></div>
   <p class="page-sub">প্রতিটি বিয়ে — একটি অনন্য গল্প</p>
 </div>
-<div class="filter-wrap" id="filterWrap"></div>
+<div style="max-width:1100px;margin:.8rem auto 0;padding:0 1.5rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
+  <div class="filter-wrap" id="filterWrap" style="margin:0;padding:0;flex:1"></div>
+  <div class="view-toggle">
+    <button class="view-btn active" id="listViewBtn" onclick="setView('list')" title="লিস্ট ভিউ">&#9783;</button>
+    <button class="view-btn" id="gridViewBtn" onclick="setView('grid')" title="গ্রিড ভিউ">&#8862;</button>
+  </div>
+</div>
 <div class="albums-wrap">
   <div class="albums-grid" id="albumsGrid">
     <div class="loading-state"><div class="spinner"></div><p>লোড হচ্ছে...</p></div>
@@ -153,6 +174,25 @@ const SUPABASE_URL = 'https://cqymtragfzyphgwfodbh.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNxeW10cmFnZnp5cGhnd2ZvZGJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMDgxNzQsImV4cCI6MjA5Mzg4NDE3NH0.Jkeyi-hA02od9fCzAPMFHzX5ZwdYgLjLjEQB5F12NZU';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentImages = [], currentFsIndex = 0, currentFilter = 'all';
+
+let currentView = localStorage.getItem('ditio_gallery_view') || 'list';
+
+function setView(view) {
+  currentView = view;
+  localStorage.setItem('ditio_gallery_view', view);
+  const grid = document.getElementById('albumsGrid');
+  const listBtn = document.getElementById('listViewBtn');
+  const gridBtn = document.getElementById('gridViewBtn');
+  if (view === 'grid') {
+    grid.classList.add('grid-view');
+    gridBtn.classList.add('active');
+    listBtn.classList.remove('active');
+  } else {
+    grid.classList.remove('grid-view');
+    listBtn.classList.add('active');
+    gridBtn.classList.remove('active');
+  }
+}
 
 async function loadAlbums(filter) {
   if (filter !== undefined) currentFilter = filter;
@@ -224,7 +264,7 @@ function closeFs() { document.getElementById('fsOverlay').classList.remove('open
 function fsNav(d) { currentFsIndex = (currentFsIndex + d + currentImages.length) % currentImages.length; document.getElementById('fsImg').src = currentImages[currentFsIndex]; }
 document.getElementById('fsOverlay').addEventListener('click', function(e) { if (e.target === this) closeFs(); });
 document.addEventListener('keydown', e => { if (e.key==='Escape'){closeFs();closeAlbum();} if(e.key==='ArrowRight')fsNav(1); if(e.key==='ArrowLeft')fsNav(-1); });
-loadAlbums();
+loadAlbums().then(() => setView(currentView));
 </script>
 
 
