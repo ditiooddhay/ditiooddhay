@@ -358,8 +358,8 @@ function doLogin() {
 }
 
 async function init() {
-  await loadTeamMembers();
-  loadBookings();
+  try { await loadTeamMembers(); } catch(e) { console.log('Team load error:', e); }
+  try { await loadBookings(); } catch(e) { console.log('Bookings load error:', e); }
   fillFilters();
   document.getElementById('newPayDate').value = new Date().toISOString().split('T')[0];
   document.getElementById('stMonth').value = new Date().toISOString().slice(0,7);
@@ -393,12 +393,15 @@ function fillFilters() {
 // ── LOAD ──
 async function loadBookings() {
   try {
-    const { data } = await sb.from('schedule_details').select('*').order('event_date', {ascending:false});
+    const { data, error } = await sb.from('schedule_details').select('*').order('created_at', {ascending:false});
+    if (error) throw error;
     allBookings = data || [];
     renderList();
     renderStats();
   } catch(e) {
-    showToast('লোড হয়নি', 'error');
+    console.error('Load error:', e);
+    document.getElementById('bookingList').innerHTML = '<div style="text-align:center;padding:3rem;color:var(--text-muted)">লোড হয়নি। <button onclick="loadBookings()" style="background:none;border:none;color:var(--gold);cursor:pointer;text-decoration:underline;font-family:Hind Siliguri,sans-serif">আবার চেষ্টা করুন</button></div>';
+    showToast('লোড হয়নি: ' + e.message, 'error');
   }
 }
 
