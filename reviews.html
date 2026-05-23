@@ -20,7 +20,6 @@
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="দ্বিতীয় অধ্যায় ওয়েডিং ফটোগ্রাফি">
   <meta property="og:locale" content="bn_BD">
-  <meta property="fb:app_id" content="">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="রিভিউ | দ্বিতীয় অধ্যায় ওয়েডিং ফটোগ্রাফি">
   <meta name="twitter:description" content="আমাদের সন্তুষ্ট ক্লায়েন্টরা কী বলেন — ৫ স্টার রেটিং সহ শতাধিক সফল বিয়ের স্মৃতি।">
@@ -63,18 +62,22 @@ nav { position:fixed; top:0; left:0; right:0; z-index:100; background:rgba(14,12
 .slider-section{max-width:480px;margin:0 auto;padding:2rem 1.5rem}
 .section-label{font-size:.68rem;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem}
 .section-label::after{content:'';flex:1;height:1px;background:rgba(201,168,76,.2)}
-.slider-wrap{position:relative;overflow:hidden;border:1px solid rgba(201,168,76,.15);background:var(--dark2);touch-action:pan-y}
-.slider-track{display:flex;transition:transform .45s cubic-bezier(.25,.46,.45,.94)}
-.slide{flex-shrink:0;width:100%}
-.slide img{width:100%;height:auto;display:block}
-.slide-empty{width:100%;padding:4rem 2rem;text-align:center;color:var(--text-muted);font-size:.85rem}
-.slider-prev,.slider-next{position:absolute;top:50%;transform:translateY(-50%);background:rgba(14,12,10,.75);border:1px solid rgba(201,168,76,.3);color:var(--gold);font-size:1.4rem;padding:.35rem .65rem;cursor:pointer;z-index:10;transition:all .25s;backdrop-filter:blur(4px)}
-.slider-prev{left:.5rem}.slider-next{right:.5rem}
-.slider-prev:hover,.slider-next:hover{background:rgba(201,168,76,.15)}
-.slider-dots{display:flex;justify-content:center;gap:.5rem;margin-top:1rem;flex-wrap:wrap}
+/* 3D SLIDER */
+.slider-scene{position:relative;width:100%;height:420px;perspective:1000px;overflow:hidden;cursor:grab}
+.slider-scene:active{cursor:grabbing}
+.slider-3d-track{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:none}
+.slide-3d{position:absolute;top:50%;left:50%;width:70%;max-width:320px;transform-origin:center center;transition:all .5s cubic-bezier(.25,.46,.45,.94);border-radius:8px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.slide-3d img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;min-height:400px}
+.slide-3d-empty{width:100%;height:400px;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:.85rem}
+.slider-btn{position:absolute;top:50%;transform:translateY(-50%);z-index:20;background:rgba(14,12,10,.7);border:1px solid rgba(201,168,76,.4);color:var(--gold);font-size:1.6rem;width:40px;height:40px;cursor:pointer;transition:all .25s;backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;border-radius:50%}
+.slider-btn:hover{background:rgba(201,168,76,.2);transform:translateY(-50%) scale(1.1)}
+.slider-btn-prev{left:.8rem}
+.slider-btn-next{right:.8rem}
+.slider-dots{display:flex;justify-content:center;gap:.5rem;margin-top:.8rem;flex-wrap:wrap}
 .dot{width:6px;height:6px;border-radius:50%;background:rgba(201,168,76,.25);cursor:pointer;transition:all .3s;border:none}
 .dot.active{background:var(--gold);transform:scale(1.3)}
-.slide-counter{text-align:center;font-size:.72rem;color:var(--text-muted);margin-top:.5rem;letter-spacing:1px}
+.slide-counter{text-align:center;font-size:.72rem;color:var(--text-muted);margin-top:.4rem;letter-spacing:1px}
+@media(max-width:500px){.slider-scene{height:340px}.slide-3d{width:75%}}
 /* FEATURED */
 .section{max-width:1000px;margin:0 auto;padding:1rem 1.5rem 2rem}
 .featured-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.2rem;margin-bottom:3rem}
@@ -159,10 +162,10 @@ footer span{color:var(--gold)}
 
 <div class="slider-section">
   <div class="section-label">Facebook রিভিউ</div>
-  <div class="slider-wrap" id="sliderWrap">
-    <button class="slider-prev" onclick="slideMove(-1)">&#8249;</button>
-    <div class="slider-track" id="sliderTrack"><div class="slide"><div class="slide-empty">লোড হচ্ছে...</div></div></div>
-    <button class="slider-next" onclick="slideMove(1)">&#8250;</button>
+  <div class="slider-scene" id="sliderScene">
+    <button class="slider-btn slider-btn-prev" onclick="slideMove(-1)">&#8249;</button>
+    <div class="slider-3d-track" id="sliderTrack"></div>
+    <button class="slider-btn slider-btn-next" onclick="slideMove(1)">&#8250;</button>
   </div>
   <div class="slide-counter" id="slideCounter"></div>
   <div class="slider-dots" id="sliderDots"></div>
@@ -290,38 +293,65 @@ async function initSlider() {
   const track = document.getElementById('sliderTrack');
   const dots = document.getElementById('sliderDots');
   if (!slides.length) {
-    track.innerHTML = '<div class="slide"><div class="slide-empty">এখনো কোনো screenshot যোগ করা হয়নি</div></div>';
+    track.innerHTML = '<div class="slide-3d-empty">এখনো কোনো screenshot যোগ করা হয়নি</div>';
     return;
   }
-  track.innerHTML = slides.map((src,i) => `<div class="slide"><img src="${src}" alt="রিভিউ ${i+1}" loading="lazy"></div>`).join('');
+  // Create slides
+  track.innerHTML = slides.map((src,i) => `
+    <div class="slide-3d" id="slide-${i}" onclick="goTo(${i})">
+      <img src="${src}" alt="রিভিউ ${i+1}" loading="lazy">
+    </div>
+  `).join('');
   dots.innerHTML = slides.map((_,i) => `<button class="dot ${i===0?'active':''}" onclick="goTo(${i})"></button>`).join('');
-  updateUI();
-  autoTimer = setInterval(() => goTo((cur+1) % slides.length), 3500);
+  render3D();
+  autoTimer = setInterval(() => goTo((cur+1) % slides.length), 4000);
+}
+
+function render3D() {
+  const total = slides.length;
+  if (!total) return;
+  slides.forEach((_, i) => {
+    const el = document.getElementById('slide-' + i);
+    if (!el) return;
+    const offset = i - cur;
+    const absOff = Math.abs(offset);
+    // Position: center is active, left/right are prev/next
+    const translateX = offset * 55;
+    const translateZ = absOff === 0 ? 0 : absOff === 1 ? -120 : -220;
+    const rotateY = offset * -18;
+    const scale = absOff === 0 ? 1 : absOff === 1 ? 0.78 : 0.6;
+    const opacity = absOff === 0 ? 1 : absOff === 1 ? 0.7 : absOff === 2 ? 0.4 : 0;
+    const zIndex = total - absOff;
+    el.style.transform = `translateX(calc(-50% + ${translateX}%)) translateY(-50%) translateZ(${translateZ}px) rotateY(${rotateY}deg) scale(${scale})`;
+    el.style.opacity = opacity;
+    el.style.zIndex = zIndex;
+    el.style.pointerEvents = absOff <= 1 ? 'auto' : 'none';
+  });
+  document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('active', i===cur));
+  document.getElementById('slideCounter').textContent = slides.length ? `${cur+1} / ${slides.length}` : '';
 }
 
 function goTo(n) {
+  if(!slides.length) return;
   cur = (n + slides.length) % slides.length;
-  document.getElementById('sliderTrack').style.transform = `translateX(-${cur*100}%)`;
-  document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('active', i===cur));
-  updateUI();
+  render3D();
   clearInterval(autoTimer);
-  autoTimer = setInterval(() => goTo((cur+1) % slides.length), 3500);
+  autoTimer = setInterval(() => goTo((cur+1) % slides.length), 4000);
 }
 function slideMove(d) { if(slides.length) goTo(cur+d); }
-function updateUI() {
-  if(!slides.length) return;
-  document.getElementById('slideCounter').textContent = `${cur+1} / ${slides.length}`;
-}
+function updateUI() { render3D(); }
 
 // Touch
 let tx = 0;
 document.addEventListener('DOMContentLoaded', () => {
-  const w = document.getElementById('sliderWrap');
-  w.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, {passive:true});
-  w.addEventListener('touchend', e => {
-    const d = tx - e.changedTouches[0].clientX;
-    if(Math.abs(d) > 40) slideMove(d > 0 ? 1 : -1);
-  }, {passive:true});
+  const w = document.getElementById('sliderScene');
+  if(w) {
+    w.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, {passive:true});
+    w.addEventListener('touchend', e => {
+      const d = tx - e.changedTouches[0].clientX;
+      if(Math.abs(d) > 40) slideMove(d > 0 ? 1 : -1);
+    }, {passive:true});
+  }
 });
 
 // REVIEWS
