@@ -452,13 +452,16 @@ function renderList() {
     const due = b.due_amount || 0;
     const badgeCls = due <= 0 ? 'due-ok' : 'due-pending';
     const badgeText = due <= 0 ? 'পরিশোধিত' : `বাকি ৳ ${due.toLocaleString()}`;
-    const dateStr = b.event_date ? new Date(b.event_date).toLocaleDateString('bn-BD') : '—';
+    const firstDate = b.event_date ? b.event_date.split(',')[0].trim() : '';
+    const dateStr = firstDate ? new Date(firstDate + 'T00:00:00').toLocaleDateString('bn-BD') : '—';
+    const allDates = b.event_date ? b.event_date.split(',').map(d=>d.trim()).filter(Boolean) : [];
+    const displayDate = allDates.length > 1 ? allDates.join(' • ') : dateStr;
     const team = (b.assigned_team || []).map(t => t.name || t).join(', ');
     return `<div class="booking-card" onclick="openDetail(${b.id})">
       <div class="booking-card-top">
         <div>
           <div class="booking-name">${b.client_name || '—'}</div>
-          <div class="booking-date">&#128197; ${allDates.length > 1 ? allDates.join(' • ') : dateStr} · ${b.package || '—'}</div>
+          <div class="booking-date">&#128197; ${displayDate} · ${b.package || '—'}</div>
           ${team ? `<div class="booking-meta">&#128101; ${team}</div>` : ''}
         </div>
         <div style="text-align:right">
