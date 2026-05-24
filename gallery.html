@@ -201,7 +201,7 @@ async function loadAlbums(filter) {
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 12000);
-    let query = sb.from('albums').select('*').order('created_at', { ascending: false });
+    let query = sb.from('albums').select('*').order('sort_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: false });
     if (currentFilter !== 'all') query = query.eq('year', currentFilter);
     const { data: albums, error } = await query;
     clearTimeout(timeoutId);
