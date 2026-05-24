@@ -633,10 +633,24 @@ function onDrop(e, dropIdx) {
 }
 
 async function saveSortOrder() {
-  for (let i = 0; i < manageAlbums.length; i++) {
-    await sb.from('albums').update({ sort_order: i }).eq('id', manageAlbums[i].id);
+  showLoading('অর্ডার সেভ হচ্ছে...');
+  try {
+    let hasError = false;
+    for (let i = 0; i < manageAlbums.length; i++) {
+      const { error } = await sb.from('albums').update({ sort_order: i }).eq('id', manageAlbums[i].id);
+      if (error) { hasError = true; console.error('Sort error:', error); }
+    }
+    hideLoading();
+    if (hasError) {
+      showToast('কিছু সমস্যা হয়েছে, আবার চেষ্টা করুন', 'error');
+    } else {
+      showToast('অর্ডার সেভ হয়েছে ✓', 'success');
+    }
+  } catch(e) {
+    hideLoading();
+    showToast('সেভ হয়নি: ' + e.message, 'error');
+    console.error(e);
   }
-  showToast('অর্ডার সেভ হয়েছে ✓', 'success');
 }
 
 // ── TOUCH DRAG ──

@@ -738,7 +738,15 @@ function openDetail(id) {
   const totalPaid = pays.reduce((s,p) => s + (p.amount||0), 0);
   const team = (b.assigned_team || []).map(t => t.name||t).join(', ');
   const teamPays = (b.team_payments || []);
-  const dateStr = b.event_date ? new Date(b.event_date).toLocaleDateString('bn-BD') : '—';
+  const dateStr = b.event_date ? b.event_date.split(',').map(d => {
+    const dt = d.trim();
+    if (!dt) return '';
+    const parts = dt.split('-');
+    if (parts.length === 3) {
+      return new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2])).toLocaleDateString('bn-BD');
+    }
+    return dt;
+  }).filter(Boolean).join(', ') : '—';
 
   document.getElementById('detailBody').innerHTML = `
     <div class="info-box">
