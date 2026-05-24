@@ -70,12 +70,21 @@
   .btn-red:hover { background:rgba(220,80,80,.1); }
 
   .album-list { display:flex; flex-direction:column; gap:1rem; }
-  .album-item { background:var(--dark2); border:1px solid rgba(201,168,76,.15); padding:1.1rem 1.3rem; display:flex; align-items:center; gap:1.2rem; }
+  .album-item { background:var(--dark2); border:1px solid rgba(201,168,76,.15); padding:1.1rem 1.3rem; display:flex; align-items:center; gap:1.2rem; transition:all .2s; }
+  .album-item.dragging { opacity:.4; border-color:var(--gold); transform:scale(.98); }
+  .album-item.drag-over { border-color:var(--gold); border-style:dashed; background:rgba(201,168,76,.08); }
+  .drag-handle { cursor:grab; color:var(--text-muted); font-size:1.1rem; padding:.2rem; flex-shrink:0; user-select:none; touch-action:none; }
+  .drag-handle:active { cursor:grabbing; color:var(--gold); }
   .album-item-thumb { width:70px; height:55px; object-fit:cover; background:var(--dark3); flex-shrink:0; }
   .album-item-info { flex:1; }
   .album-item-name { font-family:'Playfair Display',serif; font-size:1rem; color:var(--cream); }
   .album-item-meta { font-size:.75rem; color:var(--text-muted); margin-top:.2rem; }
   .album-item-actions { display:flex; gap:.5rem; }
+  /* EDIT MODAL */
+  .edit-modal { display:none; position:fixed; inset:0; z-index:300; background:rgba(0,0,0,.85); align-items:center; justify-content:center; padding:1.5rem; }
+  .edit-modal.show { display:flex; }
+  .edit-modal-box { background:var(--dark2); border:1px solid rgba(201,168,76,.25); padding:2rem; width:100%; max-width:480px; animation:fadeUp .3s ease; }
+  .edit-modal-title { font-family:'Playfair Display',serif; font-size:1.2rem; color:var(--gold); margin-bottom:1.5rem; }
 
   .toast { position:fixed; bottom:2rem; right:2rem; background:var(--dark2); border:1px solid rgba(201,168,76,.3); padding:1rem 1.5rem; color:var(--cream); font-size:.9rem; transform:translateY(100px); opacity:0; transition:all .4s; z-index:999; max-width:300px; }
   .toast.show { transform:translateY(0); opacity:1; }
@@ -298,6 +307,35 @@
   </div>
 </div>
 
+<!-- EDIT MODAL -->
+<div class="edit-modal" id="editModal">
+  <div class="edit-modal-box">
+    <div class="edit-modal-title">&#9998; অ্যালবাম সম্পাদনা</div>
+    <input type="hidden" id="editAlbumId">
+    <div class="form-group" style="margin-bottom:1rem">
+      <label class="form-label">কাপলের নাম</label>
+      <input type="text" class="form-input" id="editAlbumName">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">তারিখ</label>
+        <input type="text" class="form-input" id="editAlbumDate" placeholder="যেমন: ১৫ জানুয়ারি ২০২৫">
+      </div>
+      <div class="form-group">
+        <label class="form-label">লোকেশন</label>
+        <input type="text" class="form-input" id="editAlbumLocation">
+      </div>
+      <div class="form-group">
+        <label class="form-label">বছর</label>
+        <input type="text" class="form-input" id="editAlbumYear" placeholder="2025">
+      </div>
+    </div>
+    <div style="display:flex;gap:.8rem;margin-top:1.5rem">
+      <button class="btn-gold" onclick="saveAlbumEdit()">&#10003; সেভ করুন</button>
+      <button class="btn-outline" onclick="closeEditModal()">বাতিল</button>
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -520,25 +558,169 @@ async function loadDashboard() {
 }
 
 // ─── MANAGE ───
+let manageAlbums = [];
+
 async function loadManage() {
-  const { data: albums, error } = await sb.from('albums').select('*').order('created_at', { ascending: false });
+  const { data: albums, error } = await sb.from('albums').select('*').order('sort_order', { ascending: true }).order('created_at', { ascending: false });
   const list = document.getElementById('albumList');
   if (!albums || albums.length === 0) {
     list.innerHTML = '<div style="text-align:center;padding:3rem;color:var(--text-muted)">কোনো অ্যালবাম নেই</div>';
     return;
   }
-  list.innerHTML = albums.map(a => `
-    <div class="album-item">
+  manageAlbums = albums;
+  renderManageList();
+}
+
+function renderManageList() {
+  const list = document.getElementById('albumList');
+  list.innerHTML = manageAlbums.map((a, idx) => `
+    <div class="album-item" data-id="${a.id}" data-idx="${idx}"
+      draggable="true"
+      ondragstart="onDragStart(event, ${idx})"
+      ondragover="onDragOver(event)"
+      ondragenter="onDragEnter(event)"
+      ondragleave="onDragLeave(event)"
+      ondrop="onDrop(event, ${idx})"
+      ondragend="onDragEnd(event)">
+      <div class="drag-handle" title="ধরে সরান">&#8597;</div>
       ${a.cover_url ? `<img class="album-item-thumb" src="${a.cover_url}" alt="">` : '<div class="album-item-thumb" style="display:flex;align-items:center;justify-content:center;font-size:1.5rem;opacity:.3">&#128248;</div>'}
       <div class="album-item-info">
         <div class="album-item-name">${a.name}</div>
         <div class="album-item-meta">&#128197; ${a.date||''} &nbsp;&#128247; ${(a.images||[]).length} ছবি &nbsp;&#128205; ${a.location||''}</div>
       </div>
       <div class="album-item-actions">
+        <button class="btn-outline" onclick="openEditModal('${a.id}')">&#9998;</button>
         <button class="btn-red" onclick="deleteAlbum('${a.id}')">&#128465;</button>
       </div>
     </div>
   `).join('');
+  initTouchDrag();
+}
+
+// ── DRAG & DROP ──
+let dragIdx = null;
+
+function onDragStart(e, idx) {
+  dragIdx = idx;
+  e.target.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+function onDragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
+function onDragEnter(e) { e.currentTarget.classList.add('drag-over'); }
+function onDragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+function onDragEnd(e) { e.target.classList.remove('dragging'); document.querySelectorAll('.album-item').forEach(el => el.classList.remove('drag-over')); }
+
+function onDrop(e, dropIdx) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  if (dragIdx === null || dragIdx === dropIdx) return;
+  const moved = manageAlbums.splice(dragIdx, 1)[0];
+  manageAlbums.splice(dropIdx, 0, moved);
+  dragIdx = null;
+  renderManageList();
+  saveSortOrder();
+}
+
+async function saveSortOrder() {
+  for (let i = 0; i < manageAlbums.length; i++) {
+    await sb.from('albums').update({ sort_order: i }).eq('id', manageAlbums[i].id);
+  }
+  showToast('অর্ডার সেভ হয়েছে ✓', 'success');
+}
+
+// ── TOUCH DRAG ──
+function initTouchDrag() {
+  const items = document.querySelectorAll('.album-item');
+  items.forEach(item => {
+    const handle = item.querySelector('.drag-handle');
+    if (!handle) return;
+    let startY, startIdx, clone, offsetY;
+    handle.addEventListener('touchstart', e => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      startY = touch.clientY;
+      startIdx = parseInt(item.getAttribute('data-idx'));
+      item.classList.add('dragging');
+      clone = item.cloneNode(true);
+      clone.style.cssText = `position:fixed;z-index:999;width:${item.offsetWidth}px;opacity:.9;pointer-events:none;left:${item.getBoundingClientRect().left}px;top:${item.getBoundingClientRect().top}px;transition:none`;
+      document.body.appendChild(clone);
+      offsetY = touch.clientY - item.getBoundingClientRect().top;
+    }, {passive:false});
+    handle.addEventListener('touchmove', e => {
+      e.preventDefault();
+      if (!clone) return;
+      const touch = e.touches[0];
+      clone.style.top = (touch.clientY - offsetY) + 'px';
+      // Find target
+      const els = document.querySelectorAll('.album-item:not(.dragging)');
+      els.forEach(el => {
+        const rect = el.getBoundingClientRect();
+        const mid = rect.top + rect.height / 2;
+        el.classList.toggle('drag-over', touch.clientY > rect.top && touch.clientY < rect.bottom);
+      });
+    }, {passive:false});
+    handle.addEventListener('touchend', e => {
+      if (clone) { clone.remove(); clone = null; }
+      item.classList.remove('dragging');
+      const overEl = document.querySelector('.album-item.drag-over');
+      if (overEl) {
+        const dropIdx = parseInt(overEl.getAttribute('data-idx'));
+        overEl.classList.remove('drag-over');
+        if (startIdx !== dropIdx) {
+          const moved = manageAlbums.splice(startIdx, 1)[0];
+          manageAlbums.splice(dropIdx, 0, moved);
+          renderManageList();
+          saveSortOrder();
+        }
+      }
+    });
+  });
+}
+
+// ── EDIT MODAL ──
+function openEditModal(id) {
+  const album = manageAlbums.find(a => a.id == id);
+  if (!album) return;
+  document.getElementById('editAlbumId').value = id;
+  document.getElementById('editAlbumName').value = album.name || '';
+  document.getElementById('editAlbumDate').value = album.date || '';
+  document.getElementById('editAlbumLocation').value = album.location || '';
+  document.getElementById('editAlbumYear').value = album.year || '';
+  document.getElementById('editModal').classList.add('show');
+}
+
+function closeEditModal() {
+  document.getElementById('editModal').classList.remove('show');
+}
+
+async function saveAlbumEdit() {
+  const id = document.getElementById('editAlbumId').value;
+  const name = document.getElementById('editAlbumName').value.trim();
+  if (!name) { showToast('নাম দিন!', 'error'); return; }
+  showLoading('সেভ হচ্ছে...');
+  try {
+    await sb.from('albums').update({
+      name,
+      date: document.getElementById('editAlbumDate').value.trim(),
+      location: document.getElementById('editAlbumLocation').value.trim(),
+      year: document.getElementById('editAlbumYear').value.trim(),
+    }).eq('id', id);
+    // Update local
+    const idx = manageAlbums.findIndex(a => a.id == id);
+    if (idx >= 0) {
+      manageAlbums[idx].name = name;
+      manageAlbums[idx].date = document.getElementById('editAlbumDate').value.trim();
+      manageAlbums[idx].location = document.getElementById('editAlbumLocation').value.trim();
+      manageAlbums[idx].year = document.getElementById('editAlbumYear').value.trim();
+    }
+    hideLoading();
+    closeEditModal();
+    renderManageList();
+    showToast('সেভ হয়েছে! ✓', 'success');
+  } catch(e) {
+    hideLoading();
+    showToast('সমস্যা: ' + e.message, 'error');
+  }
 }
 
 async function deleteAlbum(id) {
