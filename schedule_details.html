@@ -348,14 +348,23 @@ const BN_MONTHS = ['জানুয়ারি','ফেব্রুয়ার
 // ── AUTH ──
 function doLogin() {
   if (document.getElementById('passInput').value === PASS) {
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('mainScreen').style.display = 'block';
-    init();
+    localStorage.setItem('ditio_schedule_session', 'true');
+    showMain();
   } else {
     document.getElementById('loginErr').style.display = 'block';
     document.getElementById('passInput').value = '';
   }
 }
+function showMain() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('mainScreen').style.display = 'block';
+  init();
+}
+window.addEventListener('DOMContentLoaded', () => {
+  if (localStorage.getItem('ditio_schedule_session') === 'true') {
+    showMain();
+  }
+});
 
 async function init() {
   try { await loadTeamMembers(); } catch(e) { console.log('Team load error:', e); }

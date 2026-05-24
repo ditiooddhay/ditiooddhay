@@ -446,15 +446,25 @@ let invoiceCounter = parseInt(localStorage.getItem('inv_counter') || '0');
 // ─── AUTH ───
 function doLogin() {
   if (document.getElementById('passInput').value === PASS) {
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('mainScreen').style.display = 'block';
-    document.getElementById('invoiceDate').value = new Date().toISOString().split('T')[0];
-    loadInvList();
+    localStorage.setItem('ditio_invoice_session', 'true');
+    showMain();
   } else {
     document.getElementById('loginErr').style.display = 'block';
     document.getElementById('passInput').value = '';
   }
 }
+function showMain() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('mainScreen').style.display = 'block';
+  document.getElementById('invoiceDate').value = new Date().toISOString().split('T')[0];
+  loadInvList();
+}
+window.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('from') === 'admin' || localStorage.getItem('ditio_invoice_session') === 'true') {
+    showMain();
+  }
+});
 
 // Auto-login if coming from admin panel
 window.addEventListener('DOMContentLoaded', () => {
