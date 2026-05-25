@@ -21,7 +21,6 @@
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="দ্বিতীয় অধ্যায় ওয়েডিং ফটোগ্রাফি">
   <meta property="og:locale" content="bn_BD">
-  <meta property="fb:app_id" content="">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="প্যাকেজ | দ্বিতীয় অধ্যায় ওয়েডিং ফটোগ্রাফি">
   <meta name="twitter:description" content="ওয়েডিং ফটোগ্রাফি, সিনেমাটোগ্রাফি ও আউটডোর শুটের জন্য সাশ্রয়ী প্যাকেজ। P1 থেকে P10 — ৫,০০০ থেকে ২৫,০০০ টাকা।">
@@ -57,10 +56,65 @@
   .dd { width:5px; height:5px; background:var(--gold); transform:rotate(45deg); }
 
   /* CATEGORY TABS */
-  .cat-tabs { display:flex; justify-content:center; gap:.6rem; flex-wrap:wrap; padding:2rem 1.5rem 0; max-width:900px; margin:0 auto; }
-  .cat-tab { background:transparent; border:1px solid rgba(201,168,76,.2); color:var(--text-muted); padding:.55rem 1.3rem; font-family:'Hind Siliguri',sans-serif; font-size:.82rem; cursor:pointer; transition:all .25s; letter-spacing:.5px; }
-  .cat-tab:hover { border-color:rgba(201,168,76,.5); color:var(--cream); }
-  .cat-tab.active { border-color:var(--gold); color:var(--gold); background:rgba(201,168,76,.08); }
+  .cat-tabs { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:.8rem; padding:2.5rem 1.5rem 0; max-width:950px; margin:0 auto; }
+  .cat-tab {
+    background:var(--dark2);
+    border:1px solid rgba(201,168,76,.18);
+    color:var(--text-muted);
+    padding:1.2rem 1rem;
+    font-family:'Hind Siliguri',sans-serif;
+    font-size:.82rem;
+    cursor:pointer;
+    transition:all .3s;
+    letter-spacing:.5px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:.5rem;
+    position:relative;
+    overflow:hidden;
+    text-align:center;
+    line-height:1.4;
+  }
+  .cat-tab::before {
+    content:'';
+    position:absolute;
+    bottom:0; left:0; right:0;
+    height:2px;
+    background:linear-gradient(90deg,transparent,var(--gold),transparent);
+    opacity:0;
+    transition:opacity .3s;
+  }
+  .cat-tab::after {
+    content:'↓';
+    font-size:.65rem;
+    color:rgba(201,168,76,.4);
+    letter-spacing:2px;
+    transition:all .3s;
+    margin-top:.2rem;
+  }
+  .cat-tab:hover {
+    border-color:rgba(201,168,76,.5);
+    color:var(--cream);
+    background:rgba(201,168,76,.06);
+    transform:translateY(-2px);
+    box-shadow:0 8px 24px rgba(0,0,0,.3);
+  }
+  .cat-tab:hover::before { opacity:1; }
+  .cat-tab:hover::after { color:var(--gold); }
+  .cat-tab.active {
+    border-color:var(--gold);
+    color:var(--gold);
+    background:rgba(201,168,76,.1);
+    box-shadow:0 8px 24px rgba(201,168,76,.15);
+  }
+  .cat-tab.active::before { opacity:1; }
+  .cat-tab.active::after { content:'▲'; color:var(--gold); }
+  .cat-tab-icon { font-size:1.6rem; line-height:1; }
+  .cat-tab-label { font-size:.78rem; font-weight:500; }
+  .cat-tab-hint { font-size:.62rem; letter-spacing:1.5px; text-transform:uppercase; color:rgba(201,168,76,.4); }
+  .cat-tab.active .cat-tab-hint { color:rgba(201,168,76,.7); }
+  @media(max-width:500px) { .cat-tabs { grid-template-columns:repeat(2,1fr); gap:.6rem; } }
 
   /* CATEGORY SECTION */
   .cat-section { display:none; max-width:1100px; margin:0 auto; padding:2.5rem 1.5rem 5rem; }
@@ -154,16 +208,37 @@
 
 <!-- TABS -->
 <div class="cat-tabs">
-  <button class="cat-tab" onclick="switchCat('photo')">📷 ওয়েডিং ফটোগ্রাফি</button>
-  <button class="cat-tab" onclick="switchCat('combo')">🎬 ফটো + সিনেমাটোগ্রাফি</button>
-  <button class="cat-tab" onclick="switchCat('cinema')">🎥 সিনেমাটোগ্রাফি</button>
-  <button class="cat-tab" onclick="switchCat('hindu')">🪔 সনাতন ধর্মের বিয়ে</button>
-  <button class="cat-tab" onclick="switchCat('outdoor')">🌿 প্রি/পোস্ট ওয়েডিং</button>
+  <button class="cat-tab" onclick="switchCat('photo')">
+    <span class="cat-tab-icon">📷</span>
+    <span class="cat-tab-label">ওয়েডিং ফটোগ্রাফি</span>
+    <span class="cat-tab-hint">১০টি প্যাকেজ</span>
+  </button>
+  <button class="cat-tab" onclick="switchCat('combo')">
+    <span class="cat-tab-icon">🎬</span>
+    <span class="cat-tab-label">ফটো + সিনেমাটোগ্রাফি</span>
+    <span class="cat-tab-hint">৮টি প্যাকেজ</span>
+  </button>
+  <button class="cat-tab" onclick="switchCat('cinema')">
+    <span class="cat-tab-icon">🎥</span>
+    <span class="cat-tab-label">সিনেমাটোগ্রাফি</span>
+    <span class="cat-tab-hint">১০টি প্যাকেজ</span>
+  </button>
+  <button class="cat-tab" onclick="switchCat('hindu')">
+    <span class="cat-tab-icon">🪔</span>
+    <span class="cat-tab-label">সনাতন ধর্মের বিয়ে</span>
+    <span class="cat-tab-hint">৬টি প্যাকেজ</span>
+  </button>
+  <button class="cat-tab" onclick="switchCat('outdoor')">
+    <span class="cat-tab-icon">🌿</span>
+    <span class="cat-tab-label">প্রি/পোস্ট ওয়েডিং</span>
+    <span class="cat-tab-hint">৯টি প্যাকেজ</span>
+  </button>
 </div>
 
 <div id="pkg-placeholder" style="text-align:center;padding:4rem 2rem;color:var(--text-muted)">
-  <div style="font-size:2.5rem;margin-bottom:1rem;opacity:.4">💎</div>
-  <p style="font-size:.9rem">উপরে একটি ক্যাটাগরি বেছে নিন</p>
+  <div style="font-size:2.5rem;margin-bottom:.8rem;opacity:.35">💎</div>
+  <p style="font-size:.95rem;color:var(--cream);margin-bottom:.4rem">একটি ক্যাটাগরি বেছে নিন</p>
+  <p style="font-size:.78rem;opacity:.6">উপরের যেকোনো কার্ডে ক্লিক করুন</p>
 </div>
 
 <!-- ─── CATEGORY 1: PHOTOGRAPHY ─── -->
