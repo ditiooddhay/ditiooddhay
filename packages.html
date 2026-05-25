@@ -1003,6 +1003,14 @@ function switchCat(name) {
   document.querySelectorAll('.cat-tab')[['photo','combo','cinema','hindu','outdoor'].indexOf(name)].classList.add('active');
   const ph = document.getElementById('pkg-placeholder');
   if (ph) ph.style.display = 'none';
+  // Auto-scroll to packages on mobile
+  setTimeout(() => {
+    const section = document.getElementById('cat-' + name);
+    if (section) {
+      const top = section.getBoundingClientRect().top + window.scrollY - 70;
+      window.scrollTo({ top, behavior: 'smooth' });
+    }
+  }, 100);
 }
 </script>
 <script>
