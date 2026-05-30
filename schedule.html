@@ -325,8 +325,10 @@ async function loadUpcoming() {
       const d = b.event_date ? b.event_date.split(',')[0].trim() : '';
       return `<div class="upcoming-item">
         <div class="upcoming-date">${d}</div>
-        <div class="upcoming-info">${b.client_name||'—'}</div>
-        <div style="font-size:.72rem;color:var(--text-muted);margin-top:.2rem">${b.package||'—'}</div>
+        <div class="upcoming-info">
+          <div style="color:var(--cream);font-size:.85rem">${b.client_name||'—'}</div>
+          <div style="font-size:.72rem;color:var(--text-muted);margin-top:.15rem">${b.package||'—'}</div>
+        </div>
         <span class="upcoming-badge" style="color:var(--gold);border-color:rgba(201,168,76,.3)">বুকড</span>
       </div>`;
     }).join('');
