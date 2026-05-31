@@ -613,12 +613,12 @@ function submitForm() {
 
 async function saveToBookings(data) {
   try {
-    await sb.from('client_bookings').insert({
+    const { error } = await sb.from('client_bookings').insert({
       name: data.name,
       phone: data.phone,
       address: data.address,
       package: data.package,
-      event_dates: data.weddingDate,
+      event_dates: data.weddingDate || getEventDates(),
       venue: data.venue,
       advance: data.advance,
       pay_method: data.payMethod,
@@ -626,7 +626,8 @@ async function saveToBookings(data) {
       status: 'pending',
       created_at: new Date().toISOString()
     });
-  } catch(e) { console.log('Booking save error:', e); }
+    if (error) console.error('Booking save error:', error);
+  } catch(e) { console.error('Booking save error:', e); }
 }
 
 async function saveToSchedule(name, address, eventDates, pkg, advance) {
