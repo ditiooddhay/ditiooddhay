@@ -973,12 +973,31 @@ async function loadClientBookings(filterStatus = 'all') {
   list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text-muted)"><div class="spinner" style="margin:0 auto 1rem;width:28px;height:28px;border:3px solid rgba(201,168,76,.2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite"></div>লোড হচ্ছে...</div>';
   
   try {
-    const { data, error } = await sb.from('client_bookings').select('*').order('created_at', { ascending: false });
+    const { data, error } = await sb.from('schedule_details')
+      .select('*')
+      .order('created_at', { ascending: false });
     if (error) throw error;
-    allClientBookings = data || [];
+    // Map schedule_details to booking format
+    allClientBookings = (data || []).map(b => ({
+      id: b.id,
+      name: b.client_name,
+      phone: '',
+      address: b.address,
+      package: b.package,
+      event_dates: b.event_date,
+      venue: '',
+      advance: (b.payments && b.payments.length > 0) ? '৳ ' + b.payments[0].amount : '—',
+      pay_method: '',
+      notes: b.notes,
+      status: b.due_amount > 0 ? 'pending' : 'confirmed',
+      created_at: b.created_at,
+      total_amount: b.total_amount,
+      due_amount: b.due_amount
+    }));
     renderBookingsList(filterStatus);
   } catch(e) {
     list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text-muted)">লোড হয়নি। <button onclick="loadClientBookings()" style="background:none;border:none;color:var(--gold);cursor:pointer;text-decoration:underline;font-family:Hind Siliguri,sans-serif">আবার চেষ্টা করুন</button></div>';
+    console.error(e);
   }
 }
 
@@ -1007,7 +1026,8 @@ function renderBookingsList(filterStatus = 'all') {
       <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap">
         <div>
           <div style="font-family:Playfair Display,serif;font-size:.95rem;color:var(--cream)">${b.name || '—'}</div>
-          <div style="font-size:.75rem;color:var(--text-muted);margin-top:.2rem">&#128247; ${b.package||'—'} &nbsp;&#128197; ${b.event_dates||'—'} &nbsp;&#128222; ${b.phone||'—'}</div>
+          <div style="font-size:.75rem;color:var(--text-muted);margin-top:.2rem">&#128247; ${b.package||'—'} &nbsp;&#128197; ${b.event_dates||'—'}</div>
+          ${b.total_amount ? `<div style="font-size:.72rem;color:var(--text-muted);margin-top:.1rem">মোট: ৳ ${b.total_amount.toLocaleString()} &nbsp;|&nbsp; বাকি: <span style="color:${b.due_amount>0?'var(--red)':'var(--green)'}">${b.due_amount>0?'৳ '+b.due_amount.toLocaleString():'পরিশোধিত'}</span></div>` : ''}
           <div style="font-size:.72rem;color:var(--text-muted);margin-top:.1rem">জমা: ${date}</div>
         </div>
         <span style="font-size:.65rem;letter-spacing:2px;text-transform:uppercase;padding:3px 10px;border:1px solid;color:${statusColor};border-color:${statusColor}40">${statusText}</span>
