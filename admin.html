@@ -337,6 +337,29 @@
     </div>
   </div>
 </div>
+  <!-- BOOKINGS PANEL -->
+  <div class="panel" id="panel-bookings">
+    <div class="panel-title">ক্লায়েন্ট <em>বুকিং</em></div>
+    <div class="panel-sub">সব বুকিং তথ্য এখানে জমা থাকবে</div>
+    <div style="display:flex;gap:.6rem;margin-bottom:1.2rem;flex-wrap:wrap">
+      <button class="btn-outline" id="bFilter-all" onclick="filterBookings('all')">সব</button>
+      <button class="btn-outline" id="bFilter-pending" onclick="filterBookings('pending')">⏳ বাকি আছে</button>
+      <button class="btn-outline" id="bFilter-confirmed" onclick="filterBookings('confirmed')">✓ পরিশোধিত</button>
+    </div>
+    <div id="bookingsList"></div>
+  </div>
+
+  <!-- BOOKING DETAIL MODAL -->
+  <div class="edit-modal" id="bookingModal">
+    <div class="edit-modal-box" style="max-width:560px;max-height:90vh;overflow-y:auto">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem">
+        <div class="edit-modal-title">&#128203; বুকিং ডিটেইল</div>
+        <button class="btn-outline" onclick="closeBookingModal()">&#10005;</button>
+      </div>
+      <div id="bookingModalContent"></div>
+      <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1.2rem" id="bookingActions"></div>
+    </div>
+  </div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -964,154 +987,137 @@ async function deleteReview(id) {
 
 
 // ─── CLIENT BOOKINGS ───
-const SCRIPT_URL_ADMIN = 'https://script.google.com/macros/s/AKfycbxCu0RhMye_Ylpx-sCRUbfBy2PLUhmtURjV59GskMoyIjM3bUAGXsO_cI3RLeeGIYMJ/exec';
 let allClientBookings = [];
 let currentBooking = null;
+let bookingFilter = 'all';
 
-async function loadClientBookings(filterStatus = 'all') {
+async function loadClientBookings() {
   const list = document.getElementById('bookingsList');
-  list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text-muted)"><div class="spinner" style="margin:0 auto 1rem;width:28px;height:28px;border:3px solid rgba(201,168,76,.2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite"></div>লোড হচ্ছে...</div>';
-  
+  if (!list) return;
+  list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text-muted)">লোড হচ্ছে...</div>';
   try {
-    const { data, error } = await sb.from('schedule_details')
-      .select('*')
-      .order('created_at', { ascending: false });
+    const { data, error } = await sb.from('schedule_details').select('*').order('created_at', { ascending: false });
     if (error) throw error;
-    // Map schedule_details to booking format
-    allClientBookings = (data || []).map(b => ({
-      id: b.id,
-      name: b.client_name,
-      phone: '',
-      address: b.address,
-      package: b.package,
-      event_dates: b.event_date,
-      venue: '',
-      advance: (b.payments && b.payments.length > 0) ? '৳ ' + b.payments[0].amount : '—',
-      pay_method: '',
-      notes: b.notes,
-      status: b.due_amount > 0 ? 'pending' : 'confirmed',
-      created_at: b.created_at,
-      total_amount: b.total_amount,
-      due_amount: b.due_amount
-    }));
-    renderBookingsList(filterStatus);
+    allClientBookings = data || [];
+    renderBookings();
   } catch(e) {
-    list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text-muted)">লোড হয়নি। <button onclick="loadClientBookings()" style="background:none;border:none;color:var(--gold);cursor:pointer;text-decoration:underline;font-family:Hind Siliguri,sans-serif">আবার চেষ্টা করুন</button></div>';
-    console.error(e);
+    list.innerHTML = `<div style="text-align:center;padding:2rem;color:var(--red)">সমস্যা: ${e.message} <button onclick="loadClientBookings()" style="background:none;border:none;color:var(--gold);cursor:pointer;text-decoration:underline;font-family:Hind Siliguri,sans-serif">আবার চেষ্টা করুন</button></div>`;
   }
 }
 
 function filterBookings(status) {
+  bookingFilter = status;
   document.querySelectorAll('[id^="bFilter-"]').forEach(b => b.classList.remove('active'));
   const btn = document.getElementById('bFilter-' + status);
   if (btn) btn.classList.add('active');
-  renderBookingsList(status);
+  renderBookings();
 }
 
-function renderBookingsList(filterStatus = 'all') {
+function renderBookings() {
   const list = document.getElementById('bookingsList');
-  let filtered = allClientBookings;
-  if (filterStatus !== 'all') filtered = allClientBookings.filter(b => b.status === filterStatus);
+  if (!list) return;
   
-  if (!filtered.length) {
+  if (!allClientBookings.length) {
     list.innerHTML = '<div style="text-align:center;padding:3rem;color:var(--text-muted)">কোনো বুকিং নেই</div>';
     return;
   }
-  
+
+  let filtered = allClientBookings;
+  if (bookingFilter === 'pending') filtered = allClientBookings.filter(b => (b.due_amount || 0) > 0);
+  if (bookingFilter === 'confirmed') filtered = allClientBookings.filter(b => (b.due_amount || 0) <= 0);
+
+  if (!filtered.length) {
+    list.innerHTML = '<div style="text-align:center;padding:3rem;color:var(--text-muted)">এই ফিল্টারে কোনো বুকিং নেই</div>';
+    return;
+  }
+
   list.innerHTML = filtered.map(b => {
-    const date = b.created_at ? new Date(b.created_at).toLocaleDateString('bn-BD') : '—';
-    const statusColor = b.status === 'confirmed' ? 'var(--green)' : b.status === 'cancelled' ? 'var(--red)' : 'var(--gold)';
-    const statusText = b.status === 'confirmed' ? '✓ কনফার্মড' : b.status === 'cancelled' ? '✕ বাতিল' : '⏳ অপেক্ষমান';
-    return `<div style="background:var(--dark2);border:1px solid rgba(201,168,76,.12);padding:1.1rem 1.3rem;cursor:pointer;transition:all .25s" onclick="openBookingModal(${b.id})" onmouseover="this.style.borderColor='rgba(201,168,76,.4)'" onmouseout="this.style.borderColor='rgba(201,168,76,.12)'">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap">
-        <div>
-          <div style="font-family:Playfair Display,serif;font-size:.95rem;color:var(--cream)">${b.name || '—'}</div>
-          <div style="font-size:.75rem;color:var(--text-muted);margin-top:.2rem">&#128247; ${b.package||'—'} &nbsp;&#128197; ${b.event_dates||'—'}</div>
-          ${b.total_amount ? `<div style="font-size:.72rem;color:var(--text-muted);margin-top:.1rem">মোট: ৳ ${b.total_amount.toLocaleString()} &nbsp;|&nbsp; বাকি: <span style="color:${b.due_amount>0?'var(--red)':'var(--green)'}">${b.due_amount>0?'৳ '+b.due_amount.toLocaleString():'পরিশোধিত'}</span></div>` : ''}
-          <div style="font-size:.72rem;color:var(--text-muted);margin-top:.1rem">জমা: ${date}</div>
+    const paid = (b.payments||[]).reduce((s,p) => s+(p.amount||0), 0);
+    const due = b.due_amount || 0;
+    const statusColor = due <= 0 ? 'var(--green)' : 'var(--gold)';
+    const statusText = due <= 0 ? '✓ পরিশোধিত' : '⏳ বাকি আছে';
+    const firstDate = b.event_date ? b.event_date.split(',')[0].trim() : '';
+    const dateStr = firstDate ? (() => { const p=firstDate.split('-'); return p.length===3?new Date(+p[0],+p[1]-1,+p[2]).toLocaleDateString('bn-BD'):firstDate; })() : '—';
+    return `<div style="background:var(--dark2);border:1px solid rgba(201,168,76,.12);padding:1.1rem 1.3rem;cursor:pointer;transition:border .2s;border-radius:2px" onclick="openBookingDetail(${b.id})" onmouseover="this.style.borderColor='rgba(201,168,76,.4)'" onmouseout="this.style.borderColor='rgba(201,168,76,.12)'">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem">
+        <div style="flex:1">
+          <div style="font-family:Playfair Display,serif;font-size:.98rem;color:var(--cream);margin-bottom:.3rem">${b.client_name||'নাম নেই'}</div>
+          <div style="font-size:.75rem;color:var(--text-muted)">&#128247; ${b.package||'—'} &nbsp;&#128197; ${dateStr}</div>
+          ${b.total_amount ? `<div style="font-size:.73rem;margin-top:.3rem">মোট: <span style="color:var(--gold)">৳ ${(b.total_amount||0).toLocaleString()}</span> &nbsp;|&nbsp; বাকি: <span style="color:${due>0?'var(--red)':'var(--green)'}">৳ ${due.toLocaleString()}</span></div>` : ''}
+          <div style="font-size:.7rem;color:var(--text-muted);margin-top:.2rem">${new Date(b.created_at).toLocaleDateString('bn-BD')}</div>
         </div>
-        <span style="font-size:.65rem;letter-spacing:2px;text-transform:uppercase;padding:3px 10px;border:1px solid;color:${statusColor};border-color:${statusColor}40">${statusText}</span>
+        <span style="font-size:.62rem;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border:1px solid;color:${statusColor};border-color:${statusColor};white-space:nowrap;flex-shrink:0">${statusText}</span>
       </div>
     </div>`;
   }).join('');
 }
 
-function openBookingModal(id) {
+function openBookingDetail(id) {
   currentBooking = allClientBookings.find(b => b.id === id);
   if (!currentBooking) return;
   const b = currentBooking;
-  
+  const pays = (b.payments||[]);
+  const paid = pays.reduce((s,p)=>s+(p.amount||0),0);
+  const due = b.due_amount || 0;
+  const team = (b.assigned_team||[]).map(t=>t.name||t).join(', ');
+  const firstDate = b.event_date ? b.event_date.split(',')[0].trim() : '';
+  const dateStr = b.event_date ? b.event_date.split(',').map(d => {
+    const p=d.trim().split('-');
+    return p.length===3?new Date(+p[0],+p[1]-1,+p[2]).toLocaleDateString('bn-BD'):d.trim();
+  }).join(', ') : '—';
+
   document.getElementById('bookingModalContent').innerHTML = `
-    <div style="display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem">
+    <div style="display:flex;flex-direction:column;gap:0">
       ${[
-        ['নাম', b.name],
-        ['ফোন', b.phone],
+        ['নাম', b.client_name],
         ['ঠিকানা', b.address],
+        ['ইভেন্ট তারিখ', dateStr],
         ['প্যাকেজ', b.package],
-        ['ইভেন্ট তারিখ', b.event_dates],
-        ['ভেনু', b.venue],
-        ['অ্যাডভান্স', b.advance],
-        ['পেমেন্ট পদ্ধতি', b.pay_method],
-        ['মন্তব্য', b.notes],
-      ].filter(([,v]) => v).map(([k,v]) => `
-        <div style="display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.85rem">
+        ['মোট টাকা', b.total_amount ? '৳ ' + b.total_amount.toLocaleString() : null],
+        ['পেমেন্ট', paid ? '৳ ' + paid.toLocaleString() : null],
+        ['বাকি', '৳ ' + due.toLocaleString()],
+        ['টিম', team || null],
+        ['নোট', b.notes],
+      ].filter(([,v])=>v).map(([k,v])=>`
+        <div style="display:flex;justify-content:space-between;padding:.55rem 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.85rem">
           <span style="color:var(--text-muted)">${k}</span>
           <span style="color:var(--cream);font-weight:500;text-align:right;max-width:60%">${v}</span>
         </div>
       `).join('')}
-    </div>
-    <div style="margin-bottom:.8rem">
-      <label style="font-size:.67rem;letter-spacing:2px;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.4rem">স্ট্যাটাস পরিবর্তন</label>
-      <select id="bookingStatusSel" style="width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(201,168,76,.2);color:var(--cream);padding:.7rem 1rem;font-family:Hind Siliguri,sans-serif;font-size:.9rem;outline:none">
-        <option value="pending" ${b.status==='pending'?'selected':''}>⏳ অপেক্ষমান</option>
-        <option value="confirmed" ${b.status==='confirmed'?'selected':''}>✓ কনফার্মড</option>
-        <option value="cancelled" ${b.status==='cancelled'?'selected':''}>✕ বাতিল</option>
-      </select>
-    </div>
-  `;
-  
-  // Action buttons
-  let waMsg = `আস-সালামু আলাইকুম ${b.name} ভাই/আপু! 🌸%0A%0Aআপনার বুকিং কনফার্ম হয়েছে। ✅%0A%0A📦 প্যাকেজ: ${b.package||'—'}%0A📅 তারিখ: ${b.event_dates||'—'}%0A💰 অ্যাডভান্স: ${b.advance||'—'}%0A%0Aঅ্যাডভান্স পেমেন্ট করুন:%0A📱 বিকাশ/নগদ: 01774-284200%0A%0Aধন্যবাদ 🙏%0Aদ্বিতীয় অধ্যায়%0A📞 01774-284200`;
-  
-  let phone = (b.phone||'').replace(/\D/g,'');
-  if (phone.startsWith('0')) phone = '880' + phone.slice(1);
-  
+      ${pays.length ? `<div style="margin-top:.8rem"><div style="font-size:.65rem;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem">পেমেন্ট লগ</div>${pays.map(p=>`<div style="display:flex;justify-content:space-between;font-size:.8rem;padding:.3rem 0;border-bottom:1px solid rgba(255,255,255,.04)"><span style="color:var(--text-muted)">${p.date||'—'}</span><span style="color:var(--green)">৳ ${(p.amount||0).toLocaleString()}</span></div>`).join('')}</div>` : ''}
+    </div>`;
+
+  // WhatsApp button
+  let phone = '';
+  const waMsg = encodeURIComponent(`আস-সালামু আলাইকুম ${b.client_name||''} ভাই/আপু! 🌸
+
+আপনার বুকিং কনফার্ম হয়েছে। ✅
+
+📦 প্যাকেজ: ${b.package||'—'}
+📅 তারিখ: ${b.event_date||'—'}
+
+ধন্যবাদ 🙏
+দ্বিতীয় অধ্যায়
+📞 01774-284200`);
+
   document.getElementById('bookingActions').innerHTML = `
-    <button class="btn-gold" onclick="updateBookingStatus()">&#10003; স্ট্যাটাস সেভ</button>
-    <a href="https://wa.me/${phone}?text=${waMsg}" target="_blank" style="display:inline-flex;align-items:center;gap:.4rem;background:#25D366;color:#fff;border:none;padding:.55rem 1rem;font-family:Hind Siliguri,sans-serif;font-size:.82rem;font-weight:600;text-decoration:none;cursor:pointer">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-      WhatsApp
-    </a>
-    ${b.phone ? `<a href="tel:${b.phone}" style="display:inline-flex;align-items:center;gap:.4rem;background:none;border:1px solid rgba(201,168,76,.3);color:var(--gold);padding:.55rem 1rem;font-family:Hind Siliguri,sans-serif;font-size:.82rem;text-decoration:none">&#128222; কল করুন</a>` : ''}
-    <button class="btn-red" onclick="deleteBooking(${b.id})">&#128465;</button>
+    <a href="schedule_details.html" class="btn-outline" style="text-decoration:none">&#9998; বিস্তারিত এডিট</a>
+    ${phone ? `<a href="https://wa.me/${phone}?text=${waMsg}" target="_blank" style="display:inline-flex;align-items:center;gap:.4rem;background:#25D366;color:#fff;border:none;padding:.55rem 1rem;font-family:Hind Siliguri,sans-serif;font-size:.82rem;font-weight:600;text-decoration:none">&#128172; WhatsApp</a>` : ''}
+    <button class="btn-red" onclick="deleteBookingEntry(${b.id})">&#128465;</button>
   `;
-  
   document.getElementById('bookingModal').classList.add('show');
 }
 
 function closeBookingModal() {
   document.getElementById('bookingModal').classList.remove('show');
-  currentBooking = null;
 }
 
-async function updateBookingStatus() {
-  if (!currentBooking) return;
-  const status = document.getElementById('bookingStatusSel').value;
-  await sb.from('client_bookings').update({ status }).eq('id', currentBooking.id);
-  currentBooking.status = status;
-  const idx = allClientBookings.findIndex(b => b.id === currentBooking.id);
-  if (idx >= 0) allClientBookings[idx].status = status;
-  closeBookingModal();
-  renderBookingsList('all');
-  showToast('স্ট্যাটাস আপডেট হয়েছে ✓', 'success');
-}
-
-async function deleteBooking(id) {
+async function deleteBookingEntry(id) {
   if (!confirm('মুছে ফেলতে চান?')) return;
-  await sb.from('client_bookings').delete().eq('id', id);
+  await sb.from('schedule_details').delete().eq('id', id);
   allClientBookings = allClientBookings.filter(b => b.id !== id);
   closeBookingModal();
-  renderBookingsList('all');
+  renderBookings();
   showToast('মুছে ফেলা হয়েছে।');
 }
 
