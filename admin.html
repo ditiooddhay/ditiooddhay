@@ -1090,21 +1090,16 @@ function openBookingDetail(id) {
     </div>`;
 
   // WhatsApp button
-  let phone = '';
-  const waMsg = encodeURIComponent(`আস-সালামু আলাইকুম ${b.client_name||''} ভাই/আপু! 🌸
-
-আপনার বুকিং কনফার্ম হয়েছে। ✅
-
-📦 প্যাকেজ: ${b.package||'—'}
-📅 তারিখ: ${b.event_date||'—'}
-
-ধন্যবাদ 🙏
-দ্বিতীয় অধ্যায়
-📞 01774-284200`);
+  let waPhone = (b.phone||'').replace(/\D/g,'');
+  if (waPhone.startsWith('0')) waPhone = '880' + waPhone.slice(1);
+  else if (waPhone && !waPhone.startsWith('880')) waPhone = '880' + waPhone;
+  
+  const waMsg = encodeURIComponent(`আস-সালামু আলাইকুম ${b.client_name||''} ভাই/আপু! 🌸\n\nআপনার বুকিং কনফার্ম হয়েছে। ✅\n\n📦 প্যাকেজ: ${b.package||'—'}\n📅 তারিখ: ${b.event_dates||'—'}\n💰 অ্যাডভান্স: ${b.advance||'—'}\n\nঅ্যাডভান্স পেমেন্ট করুন:\n📱 বিকাশ/নগদ: 01774-284200\n\nধন্যবাদ 🙏\nদ্বিতীয় অধ্যায়\n📞 01774-284200`);
 
   document.getElementById('bookingActions').innerHTML = `
     <a href="schedule_details.html" class="btn-outline" style="text-decoration:none">&#9998; বিস্তারিত এডিট</a>
-    ${phone ? `<a href="https://wa.me/${phone}?text=${waMsg}" target="_blank" style="display:inline-flex;align-items:center;gap:.4rem;background:#25D366;color:#fff;border:none;padding:.55rem 1rem;font-family:Hind Siliguri,sans-serif;font-size:.82rem;font-weight:600;text-decoration:none">&#128172; WhatsApp</a>` : ''}
+    ${waPhone ? `<a href="https://wa.me/${waPhone}?text=${waMsg}" target="_blank" style="display:inline-flex;align-items:center;gap:.4rem;background:#25D366;color:#fff;border:none;padding:.55rem 1rem;font-family:Hind Siliguri,sans-serif;font-size:.82rem;font-weight:600;text-decoration:none">&#128172; WhatsApp পাঠান</a>` : '<span style="font-size:.78rem;color:var(--text-muted)">ফোন নম্বর নেই</span>'}
+    ${b.phone ? `<a href="tel:${b.phone}" style="display:inline-flex;align-items:center;gap:.4rem;background:none;border:1px solid rgba(201,168,76,.3);color:var(--gold);padding:.55rem 1rem;font-family:Hind Siliguri,sans-serif;font-size:.82rem;text-decoration:none">&#128222; কল করুন</a>` : ''}
     <button class="btn-red" onclick="deleteBookingEntry(${b.id})">&#128465;</button>
   `;
   document.getElementById('bookingModal').classList.add('show');
