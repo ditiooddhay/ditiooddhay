@@ -1070,9 +1070,11 @@ function openBookingDetail(id) {
     <div style="display:flex;flex-direction:column;gap:0">
       ${[
         ['নাম', b.client_name],
+        ['ফোন', b.phone || null],
         ['ঠিকানা', b.address],
         ['ইভেন্ট তারিখ', dateStr],
         ['প্যাকেজ', b.package],
+        ['অ্যাডভান্স', b.advance || null],
         ['মোট টাকা', b.total_amount ? '৳ ' + b.total_amount.toLocaleString() : null],
         ['পেমেন্ট', paid ? '৳ ' + paid.toLocaleString() : null],
         ['বাকি', '৳ ' + due.toLocaleString()],

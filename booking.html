@@ -593,7 +593,13 @@ function submitForm() {
     body: JSON.stringify(data)
   })
   .then(() => {
-    saveToSchedule(name, address, getEventDates(), data.package, parseFloat(advance) || 0);
+    saveToSchedule(
+      name, address, getEventDates(), data.package, parseFloat(advance) || 0,
+      document.getElementById('phone').value.trim(),
+      document.getElementById('venue').value.trim(),
+      document.getElementById('payMethod').value,
+      document.getElementById('notes').value.trim()
+    );
     saveToBookings(data);
     document.getElementById('successMsg').style.display = 'block';
     document.getElementById('successMsg').scrollIntoView({behavior:'smooth', block:'center'});
@@ -630,11 +636,12 @@ async function saveToBookings(data) {
   } catch(e) { console.error('Booking save error:', e); }
 }
 
-async function saveToSchedule(name, address, eventDates, pkg, advance) {
+async function saveToSchedule(name, address, eventDates, pkg, advance, phone, venue, payMethod, notes) {
   try {
     const paid = advance > 0 ? [{ amount: advance, date: new Date().toISOString().split('T')[0], id: Date.now() }] : [];
     await sb.from('schedule_details').insert({
       client_name: name,
+      phone: phone || '',
       address: address,
       event_date: eventDates || '',
       package: pkg,
@@ -644,7 +651,7 @@ async function saveToSchedule(name, address, eventDates, pkg, advance) {
       assigned_team: [],
       team_payments: [],
       office_amount: 0,
-      notes: 'বুকিং ফর্ম থেকে এন্ট্রি',
+      notes: `ভেনু: ${venue||'—'} | পেমেন্ট: ${payMethod||'—'} | ${notes||'বুকিং ফর্ম থেকে এন্ট্রি'}`,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     });
