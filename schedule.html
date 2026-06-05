@@ -2,7 +2,14 @@
 <html lang="bn">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#c9a84c">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="দ্বিতীয় অধ্যায়">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>শিডিউল | দ্বিতীয় অধ্যায়</title>
   <!-- SEO & Facebook Open Graph -->
   <meta name="description" content="আমরা কোন দিন ফাঁকা আছি দেখুন এবং এখনই বুকিং করুন — দ্বিতীয় অধ্যায়, পঞ্চগড়।">
@@ -359,6 +366,13 @@ window.addEventListener('load', function() { setTimeout(hideLoader, 400); });
 setTimeout(hideLoader, 4000);
 
 document.addEventListener('DOMContentLoaded', loadBookings);
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(e => console.log('SW error:', e));
+  });
+}
 </script>
 </body>
 </html>
