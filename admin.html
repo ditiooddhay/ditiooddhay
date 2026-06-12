@@ -840,6 +840,7 @@ async function saveFounder() {
 }
 
 async function addMember() {
+  const editId = document.getElementById('memberName').dataset.editId;
   const name = document.getElementById('memberName').value.trim();
   const role = document.getElementById('memberRole').value;
   if (!name || !role) { showToast('নাম ও পদবী দিন!', 'error'); return; }
@@ -850,7 +851,19 @@ async function addMember() {
       const blob = await compressSquare(pendingMemberPhoto, 400);
       photoUrl = await uploadToSupabase(blob, `team/member_${Date.now()}.jpg`);
     }
-    await sb.from('team_members').insert({ name, role, photo_url: photoUrl });
+    const payload = {
+      name, role, photo_url: photoUrl,
+      joined_year: parseInt(document.getElementById('memberJoinedYear').value) || null,
+      events_covered: parseInt(document.getElementById('memberEvents').value) || 0,
+      specialty: document.getElementById('memberSpecialty').value.trim(),
+      future_plan: document.getElementById('memberFuturePlan').value.trim()
+    };
+    if (editId) {
+      await sb.from('team_members').update(payload).eq('id', editId);
+      document.getElementById('memberName').dataset.editId = '';
+    } else {
+      await sb.from('team_members').insert(payload);
+    }
     hideLoading();
     document.getElementById('memberName').value = '';
     document.getElementById('memberRole').value = '';
@@ -868,6 +881,20 @@ async function deleteMember(id) {
   showToast('মুছে ফেলা হয়েছে।');
 }
 
+
+function editMember(m) {
+  document.getElementById('memberName').value = m.name || '';
+  document.getElementById('memberRole').value = m.role || '';
+  document.getElementById('memberJoinedYear').value = m.joined_year || '';
+  document.getElementById('memberEvents').value = m.events_covered || '';
+  document.getElementById('memberSpecialty').value = m.specialty || '';
+  document.getElementById('memberFuturePlan').value = m.future_plan || '';
+  // Store editing id
+  document.getElementById('memberName').dataset.editId = m.id;
+  // Scroll to form
+  document.querySelector('#panel-team .form-card').scrollIntoView({behavior:'smooth'});
+  showToast('এডিট মোড — তথ্য পরিবর্তন করে সেভ করুন');
+}
 async function loadTeamPanel() {
   const { data: founder } = await sb.from('team_founder').select('*').limit(1);
   if (founder && founder[0]) {
