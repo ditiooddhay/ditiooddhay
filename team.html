@@ -45,6 +45,10 @@
 
   <!-- Schema.org -->
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "LocalBusiness", "@id": "https://ditiooddhay.vercel.app", "name": "দ্বিতীয় অধ্যায়", "alternateName": "Ditiooddhay", "description": "পঞ্চগড়ের সেরা ওয়েডিং ফটোগ্রাফি ও সিনেমাটোগ্রাফি সার্ভিস", "url": "https://ditiooddhay.vercel.app", "telephone": "+8801774284200", "address": {"@type": "PostalAddress", "streetAddress": "ব্যারিষ্টার কলেজ মোড়", "addressLocality": "পঞ্চগড় সদর", "addressRegion": "পঞ্চগড়", "addressCountry": "BD"}, "geo": {"@type": "GeoCoordinates", "latitude": 26.3305, "longitude": 88.5522}, "image": "https://ditiooddhay.vercel.app/og-image.jpg", "logo": "https://ditiooddhay.vercel.app/og-image.jpg", "priceRange": "৳৳", "openingHours": "Mo-Su 08:00-22:00", "sameAs": ["https://www.facebook.com/ditiooddhaybd", "https://www.instagram.com/ditiooddhaybd"], "founder": {"@type": "Person", "name": "জিহাদী ইসলাম নুর"}, "foundingDate": "2019", "aggregateRating": {"@type": "AggregateRating", "ratingValue": "5.0", "reviewCount": "200", "bestRating": "5"}}
+function openProfileEncoded(encoded) {
+  openProfile(JSON.parse(decodeURIComponent(encoded)));
+}
+
 function openProfile(member) {
   const m = typeof member === 'string' ? JSON.parse(member) : member;
   const currentYear = new Date().getFullYear();
@@ -327,13 +331,15 @@ async function loadTeam() {
   const fs = document.getElementById('founderSection');
   if (founder && founder[0]) {
     const f = founder[0];
+    const fData = encodeURIComponent(JSON.stringify(f));
     fs.innerHTML = `
-      <div class="founder-card">
+      <div class="founder-card" onclick="openProfileEncoded('${fData}')" style="cursor:pointer">
         <div class="founder-photo">${f.photo_url ? `<img src="${f.photo_url}" alt="${f.name}">` : '&#128100;'}</div>
         <div class="founder-info">
           <div class="founder-name">${f.name}</div>
           <div class="founder-role">${f.role}</div>
           <div class="founder-bio">${f.bio || ''}</div>
+          <div style="font-size:.72rem;color:rgba(201,168,76,.6);margin-top:.5rem">বিস্তারিত প্রোফাইল দেখুন ↗</div>
         </div>
       </div>`;
   } else {
@@ -346,16 +352,18 @@ async function loadTeam() {
     grid.innerHTML = '<p style="color:var(--text-muted)">কোনো মেম্বার নেই।</p>';
     return;
   }
-  grid.innerHTML = members.map((m, i) => `
-    <div class="member-card" style="animation-delay:${i*.07}s" onclick="openProfile(${JSON.stringify(m).replace(/'/g, '\'')})">
+  grid.innerHTML = members.map((m, i) => {
+    const mData = encodeURIComponent(JSON.stringify(m));
+    return `
+    <div class="member-card" style="animation-delay:${i*.07}s" onclick="openProfileEncoded('${mData}')">
       <div class="member-photo">${m.photo_url ? `<img src="${m.photo_url}" alt="${m.name}">` : '&#128100;'}</div>
       <div class="member-info">
         <div class="member-name">${m.name}</div>
         <div class="member-role">${m.role}</div>
       </div>
       <div style="font-size:.65rem;letter-spacing:1px;color:rgba(201,168,76,.5);padding:.3rem 1rem .8rem;text-align:center">প্রোফাইল দেখুন ↗</div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
   } catch(err) {
     document.getElementById('founderSection').innerHTML = '<p style="color:var(--text-muted);padding:1rem 0">লোড হয়নি। <button onclick="loadTeam()" style="background:none;border:none;color:var(--gold);cursor:pointer;font-family:Hind Siliguri,sans-serif;text-decoration:underline">আবার চেষ্টা করুন</button></p>';
   }
