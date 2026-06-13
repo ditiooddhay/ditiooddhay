@@ -919,8 +919,12 @@ async function loadTeamPanel() {
       <div style="flex:1">
         <div style="font-family:Playfair Display,serif;font-size:.95rem;color:var(--cream)">${m.name}</div>
         <div style="font-size:.68rem;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-top:.2rem">${m.role}</div>
+        ${m.joined_year ? `<div style="font-size:.7rem;color:var(--text-muted);margin-top:.2rem">${m.joined_year} থেকে · ${m.events_covered||0} ইভেন্ট</div>` : ''}
       </div>
-      <button class="btn-red" onclick="deleteMember(${m.id})">&#128465;</button>
+      <div style="display:flex;gap:.5rem">
+        <button class="btn-outline" onclick='editMember(${JSON.stringify(m)})'>&#9998;</button>
+        <button class="btn-red" onclick="deleteMember(${m.id})">&#128465;</button>
+      </div>
     </div>
   `).join('');
 }
