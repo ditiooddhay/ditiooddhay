@@ -35,6 +35,19 @@
   .nav-tabs { display:flex; gap:.5rem; margin-left:auto; flex-wrap:wrap; }
   .nav-tab { background:none; border:1px solid rgba(201,168,76,.2); color:var(--text-muted); padding:.4rem 1rem; cursor:pointer; font-family:'Hind Siliguri',sans-serif; font-size:.82rem; transition:all .25s; }
   .nav-tab:hover, .nav-tab.active { border-color:var(--gold); color:var(--gold); background:rgba(201,168,76,.08); }
+
+  /* DASHBOARD CARDS */
+  .dash-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:1rem; margin-top:1.5rem; }
+  .dash-card { background:var(--dark2); border:1px solid rgba(201,168,76,.15); padding:1.2rem 1.3rem; display:flex; align-items:center; gap:1rem; cursor:pointer; text-decoration:none; transition:all .25s; font-family:'Hind Siliguri',sans-serif; width:100%; text-align:left; }
+  .dash-card:hover { border-color:rgba(201,168,76,.5); transform:translateY(-2px); box-shadow:0 10px 30px rgba(0,0,0,.35); }
+  .dash-card-icon { font-size:1.6rem; flex-shrink:0; width:46px; height:46px; display:flex; align-items:center; justify-content:center; background:rgba(201,168,76,.08); border:1px solid rgba(201,168,76,.2); }
+  .dash-card-info { flex:1; }
+  .dash-card-title { font-family:'Playfair Display',serif; font-size:1rem; color:var(--cream); }
+  .dash-card-sub { font-size:.72rem; color:var(--text-muted); margin-top:.2rem; }
+  .dash-card-arrow { font-size:1.1rem; color:rgba(201,168,76,.5); flex-shrink:0; }
+  .dash-card-primary { border-color:rgba(201,168,76,.4); background:rgba(201,168,76,.07); }
+  .dash-card-primary .dash-card-icon { background:rgba(201,168,76,.15); border-color:var(--gold); color:var(--gold); }
+  .dash-card-primary .dash-card-title { color:var(--gold); }
   .logout-btn { background:none; border:1px solid rgba(220,80,80,.3); color:#e07070; padding:.4rem .9rem; cursor:pointer; font-family:'Hind Siliguri',sans-serif; font-size:.8rem; transition:all .25s; }
   .logout-btn:hover { background:rgba(220,80,80,.1); }
 
@@ -142,8 +155,7 @@
     <span class="admin-nav-title">&#9670; Admin Panel</span>
     <div class="nav-tabs">
       <button class="nav-tab active" onclick="switchTab('dashboard')">Dashboard</button>
-      <button class="nav-tab" onclick="switchTab('add')">+ নতুন অ্যালবাম</button>
-      <button class="nav-tab" onclick="switchTab('manage')">অ্যালবাম</button>
+      <button class="nav-tab" onclick="switchTab('manage')">&#128247; অ্যালবাম</button>
       <button class="nav-tab" onclick="switchTab('team')">&#128101; টিম</button>
       <button class="nav-tab" onclick="switchTab('reviews')">&#11088; রিভিউ</button>
       <button class="nav-tab" onclick="switchTab('bookings')">&#128203; বুকিং</button>
@@ -156,64 +168,100 @@
     <div class="panel-title">স্বাগতম, <em>দ্বিতীয় অধ্যায়</em></div>
     <div class="panel-sub">আপনার গ্যালারির সারসংক্ষেপ</div>
     <div class="stats-grid" id="statsGrid"></div>
-    <div style="display:flex;gap:1rem;flex-wrap:wrap">
-      <button class="btn-gold" onclick="switchTab('add')">+ নতুন অ্যালবাম</button>
-      <a href="gallery.html" target="_blank" class="btn-outline" style="text-decoration:none;display:inline-flex;align-items:center">গ্যালারি দেখুন &#8599;</a>
-      <a href="team.html" target="_blank" class="btn-outline" style="text-decoration:none;display:inline-flex;align-items:center">টিম পেজ &#8599;</a>
-      <a href="invoice.html?from=admin" class="btn-outline" style="text-decoration:none;display:inline-flex;align-items:center">&#128196; Invoice Panel &#8599;</a>
+    <div class="dash-grid">
+      <a href="invoice.html?from=admin" class="dash-card dash-card-primary">
+        <div class="dash-card-icon">&#128196;</div>
+        <div class="dash-card-info">
+          <div class="dash-card-title">Invoice</div>
+          <div class="dash-card-sub">ইনভয়েস তৈরি ও পাঠান</div>
+        </div>
+        <div class="dash-card-arrow">&#8599;</div>
+      </a>
+      <button class="dash-card" onclick="switchTab('manage')">
+        <div class="dash-card-icon">&#128247;</div>
+        <div class="dash-card-info">
+          <div class="dash-card-title">অ্যালবাম</div>
+          <div class="dash-card-sub">গ্যালারি পরিচালনা করুন</div>
+        </div>
+        <div class="dash-card-arrow">&#8594;</div>
+      </button>
+      <button class="dash-card" onclick="switchTab('team')">
+        <div class="dash-card-icon">&#128101;</div>
+        <div class="dash-card-info">
+          <div class="dash-card-title">টিম</div>
+          <div class="dash-card-sub">মেম্বারদের তথ্য আপডেট করুন</div>
+        </div>
+        <div class="dash-card-arrow">&#8594;</div>
+      </button>
+      <button class="dash-card" onclick="switchTab('reviews')">
+        <div class="dash-card-icon">&#11088;</div>
+        <div class="dash-card-info">
+          <div class="dash-card-title">রিভিউ</div>
+          <div class="dash-card-sub">মন্তব্য ও স্ক্রিনশট পরিচালনা</div>
+        </div>
+        <div class="dash-card-arrow">&#8594;</div>
+      </button>
+      <button class="dash-card" onclick="switchTab('bookings')">
+        <div class="dash-card-icon">&#128203;</div>
+        <div class="dash-card-info">
+          <div class="dash-card-title">বুকিং</div>
+          <div class="dash-card-sub">ক্লায়েন্ট বুকিং দেখুন</div>
+        </div>
+        <div class="dash-card-arrow">&#8594;</div>
+      </button>
     </div>
   </div>
 
-  <!-- ADD ALBUM -->
-  <div class="panel" id="panel-add">
-    <div class="panel-title">নতুন <em>অ্যালবাম</em></div>
-    <div class="panel-sub">তথ্য পূরণ করে ছবি আপলোড করুন</div>
-    <div class="form-card">
-      <div class="form-section">অ্যালবামের তথ্য</div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">কাপলের নাম *</label>
-          <input type="text" class="form-input" id="albumName" placeholder="রহিম ও ফাতেমা">
-        </div>
-        <div class="form-group">
-          <label class="form-label">বিয়ের তারিখ</label>
-          <input type="date" class="form-input" id="albumDate">
-        </div>
-        <div class="form-group">
-          <label class="form-label">লোকেশন</label>
-          <input type="text" class="form-input" id="albumLocation" placeholder="পঞ্চগড়">
-        </div>
-        <div class="form-group">
-          <label class="form-label">বছর</label>
-          <input type="text" class="form-input" id="albumYear" placeholder="2025">
-        </div>
-      </div>
-    </div>
-    <div class="form-card">
-      <div class="form-section">ছবি আপলোড</div>
-      <div class="upload-area" id="uploadArea">
-        <input type="file" id="imageInput" multiple accept="image/*" onchange="handleImages(this.files)">
-        <div style="font-size:2rem;opacity:.4;margin-bottom:.5rem">&#128247;</div>
-        <div class="upload-text"><strong>ক্লিক করুন</strong> বা ড্র্যাগ করুন</div>
-        <div class="upload-text" style="font-size:.75rem;margin-top:.3rem">JPG, PNG — সর্বোচ্চ 5MB</div>
-      </div>
-      <div class="progress-wrap" id="progressWrap" style="display:none">
-        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-        <div class="progress-text" id="progressText">প্রসেস হচ্ছে...</div>
-      </div>
-      <div class="preview-grid" id="previewGrid"></div>
-      <p style="font-size:.75rem;color:var(--text-muted);margin-top:.8rem" id="previewNote"></p>
-    </div>
-    <div style="display:flex;gap:1rem;flex-wrap:wrap">
-      <button class="btn-gold" onclick="saveAlbum()" id="saveBtn">&#10003; অ্যালবাম সেভ করুন</button>
-      <button class="btn-outline" onclick="resetForm()">রিসেট</button>
-    </div>
-  </div>
-
-  <!-- MANAGE -->
+  <!-- MANAGE (includes Add Album) -->
   <div class="panel" id="panel-manage">
     <div class="panel-title">অ্যালবাম <em>পরিচালনা</em></div>
-    <div class="panel-sub">সব অ্যালবাম দেখুন বা মুছুন</div>
+    <div class="panel-sub">সব অ্যালবাম দেখুন, পরিচালনা করুন বা নতুন যোগ করুন</div>
+    <button class="btn-gold" onclick="toggleAddAlbum()" id="toggleAddBtn" style="margin-bottom:1.5rem">+ নতুন অ্যালবাম</button>
+
+    <div id="addAlbumSection" style="display:none">
+      <div class="form-card">
+        <div class="form-section">অ্যালবামের তথ্য</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">কাপলের নাম *</label>
+            <input type="text" class="form-input" id="albumName" placeholder="রহিম ও ফাতেমা">
+          </div>
+          <div class="form-group">
+            <label class="form-label">বিয়ের তারিখ</label>
+            <input type="date" class="form-input" id="albumDate">
+          </div>
+          <div class="form-group">
+            <label class="form-label">লোকেশন</label>
+            <input type="text" class="form-input" id="albumLocation" placeholder="পঞ্চগড়">
+          </div>
+          <div class="form-group">
+            <label class="form-label">বছর</label>
+            <input type="text" class="form-input" id="albumYear" placeholder="2025">
+          </div>
+        </div>
+      </div>
+      <div class="form-card">
+        <div class="form-section">ছবি আপলোড</div>
+        <div class="upload-area" id="uploadArea">
+          <input type="file" id="imageInput" multiple accept="image/*" onchange="handleImages(this.files)">
+          <div style="font-size:2rem;opacity:.4;margin-bottom:.5rem">&#128247;</div>
+          <div class="upload-text"><strong>ক্লিক করুন</strong> বা ড্র্যাগ করুন</div>
+          <div class="upload-text" style="font-size:.75rem;margin-top:.3rem">JPG, PNG — সর্বোচ্চ 5MB</div>
+        </div>
+        <div class="progress-wrap" id="progressWrap" style="display:none">
+          <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+          <div class="progress-text" id="progressText">প্রসেস হচ্ছে...</div>
+        </div>
+        <div class="preview-grid" id="previewGrid"></div>
+        <p style="font-size:.75rem;color:var(--text-muted);margin-top:.8rem" id="previewNote"></p>
+      </div>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:2rem">
+        <button class="btn-gold" onclick="saveAlbum()" id="saveBtn">&#10003; অ্যালবাম সেভ করুন</button>
+        <button class="btn-outline" onclick="resetForm()">রিসেট</button>
+        <button class="btn-outline" onclick="toggleAddAlbum()">বাতিল</button>
+      </div>
+    </div>
+
     <div class="album-list" id="albumList"></div>
   </div>
 
@@ -428,7 +476,7 @@ function switchTab(name) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('panel-' + name).classList.add('active');
-  document.querySelectorAll('.nav-tab')[['dashboard','add','manage','team','reviews','bookings'].indexOf(name)].classList.add('active');
+  document.querySelectorAll('.nav-tab')[['dashboard','manage','team','reviews','bookings'].indexOf(name)].classList.add('active');
   if (name === 'dashboard') loadDashboard();
   if (name === 'manage') loadManage();
   if (name === 'team') loadTeamPanel();
@@ -585,12 +633,20 @@ async function saveAlbum() {
     hideLoading();
     showToast('অ্যালবাম সফলভাবে সেভ হয়েছে! &#127881;', 'success');
     resetForm();
-    setTimeout(() => switchTab('manage'), 1200);
+    document.getElementById('addAlbumSection').style.display = 'none';
+    loadManage();
   } catch(err) {
     hideLoading();
     showToast('সমস্যা হয়েছে: ' + err.message, 'error');
   }
   btn.disabled = false;
+}
+
+function toggleAddAlbum() {
+  const section = document.getElementById('addAlbumSection');
+  const isHidden = section.style.display === 'none';
+  section.style.display = isHidden ? 'block' : 'none';
+  if (isHidden) section.scrollIntoView({behavior:'smooth', block:'start'});
 }
 
 function resetForm() {
