@@ -35,6 +35,11 @@
   .admin-nav-title { font-family:'Playfair Display',serif; color:var(--gold); font-size:1.05rem; letter-spacing:2px; text-transform:uppercase; }
   .admin-nav-subtitle { font-size:.66rem; color:var(--text-muted); letter-spacing:.5px; margin-top:1px; }
   .logout-btn { background:none; border:1px solid rgba(220,80,80,.3); color:#e07070; padding:.4rem .9rem; cursor:pointer; font-family:'Hind Siliguri',sans-serif; font-size:.8rem; transition:all .25s; margin-left:auto; }
+  .header-back-btn { display:none; align-items:center; gap:.5rem; color:var(--cream); text-decoration:none; font-size:.78rem; letter-spacing:.5px; border:1px solid rgba(201,168,76,.25); padding:.4rem .85rem .4rem .5rem; background:linear-gradient(135deg, rgba(201,168,76,.08), rgba(201,168,76,.02)); cursor:pointer; font-family:'Hind Siliguri',sans-serif; transition:all .25s; margin-left:auto; }
+  .header-back-btn.show { display:inline-flex; }
+  .header-back-btn::before { content:'\2190'; display:flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:50%; background:rgba(201,168,76,.15); color:var(--gold); font-size:.7rem; transition:all .25s; }
+  .header-back-btn:hover { border-color:var(--gold); background:linear-gradient(135deg, rgba(201,168,76,.16), rgba(201,168,76,.04)); }
+  .header-back-btn:hover::before { background:var(--gold); color:var(--dark); }
   .nav-tabs { display:flex; gap:.5rem; margin-left:auto; flex-wrap:wrap; }
 
   /* DASHBOARD CARDS */
@@ -169,7 +174,8 @@
       <span class="admin-nav-title">Admin Panel</span>
       <span class="admin-nav-subtitle">দ্বিতীয় অধ্যায় ব্যবস্থাপনা</span>
     </span>
-    <button class="logout-btn" onclick="doLogout()">লগআউট</button>
+    <button class="logout-btn" id="logoutBtnHeader" onclick="doLogout()">লগআউট</button>
+    <button class="header-back-btn" id="headerBackBtn" onclick="switchTab('dashboard')">ড্যাশবোর্ড</button>
   </div>
 
   <!-- DASHBOARD -->
@@ -230,7 +236,6 @@
 
   <!-- DETAILS -->
   <div class="panel" id="panel-details">
-    <button class="back-link" onclick="switchTab('dashboard')">ড্যাশবোর্ড</button>
     <div class="panel-title">সাইটের <em>ডিটেইল</em></div>
     <div class="panel-sub">আয়, ইভেন্ট ও সব পরিসংখ্যান এক জায়গায়</div>
     <div id="detailsContent" style="display:flex;justify-content:center;padding:3rem 0"><div class="spinner"></div></div>
@@ -238,7 +243,6 @@
 
   <!-- MANAGE (includes Add Album) -->
   <div class="panel" id="panel-manage">
-    <button class="back-link" onclick="switchTab('dashboard')">ড্যাশবোর্ড</button>
     <div class="panel-title">অ্যালবাম <em>পরিচালনা</em></div>
     <div class="panel-sub">সব অ্যালবাম দেখুন, পরিচালনা করুন বা নতুন যোগ করুন</div>
     <button class="btn-gold" onclick="toggleAddAlbum()" id="toggleAddBtn" style="margin-bottom:1.5rem">+ নতুন অ্যালবাম</button>
@@ -292,7 +296,6 @@
 
   <!-- REVIEWS -->
   <div class="panel" id="panel-reviews">
-    <button class="back-link" onclick="switchTab('dashboard')">ড্যাশবোর্ড</button>
     <div class="panel-title">রিভিউ <em>পরিচালনা</em></div>
     <div class="panel-sub">Facebook screenshot আপলোড ও মন্তব্য অনুমোদন করুন</div>
 
@@ -324,7 +327,6 @@
     <div id="reviewsList"></div>
   </div>
   <div class="panel" id="panel-team">
-    <button class="back-link" onclick="switchTab('dashboard')">ড্যাশবোর্ড</button>
     <div class="panel-title">টিম <em>পরিচালনা</em></div>
     <div class="panel-sub">প্রতিষ্ঠাতা ও টিম মেম্বারদের তথ্য আপডেট করুন</div>
 
@@ -437,7 +439,6 @@
 </div>
   <!-- BOOKINGS PANEL -->
   <div class="panel" id="panel-bookings">
-    <button class="back-link" onclick="switchTab('dashboard')">ড্যাশবোর্ড</button>
     <div class="panel-title">ক্লায়েন্ট <em>বুকিং</em></div>
     <div class="panel-sub">সব বুকিং তথ্য এখানে জমা থাকবে</div>
     <div style="display:flex;gap:.6rem;margin-bottom:1.2rem;flex-wrap:wrap">
@@ -503,6 +504,15 @@ window.addEventListener('DOMContentLoaded', () => {
 function switchTab(name) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.getElementById('panel-' + name).classList.add('active');
+  const logoutBtn = document.getElementById('logoutBtnHeader');
+  const backBtn = document.getElementById('headerBackBtn');
+  if (name === 'dashboard') {
+    logoutBtn.style.display = 'inline-flex';
+    backBtn.classList.remove('show');
+  } else {
+    logoutBtn.style.display = 'none';
+    backBtn.classList.add('show');
+  }
   if (name === 'dashboard') loadDashboard();
   if (name === 'manage') loadManage();
   if (name === 'team') loadTeamPanel();
