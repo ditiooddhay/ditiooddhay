@@ -437,10 +437,27 @@ function handleSecretLogoClick() {
 }
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ── CHATBOT (rule-based FAQ assistant + WhatsApp handoff) ──
 const WA_PHONE = '8801774284200';
 let chatOpened = false;
+let trainedFaqs = [];
+
+const chatSb = supabase.createClient(
+  'https://cqymtragfzyphgwfodbh.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNxeW10cmFnZnp5cGhnd2ZvZGJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMDgxNzQsImV4cCI6MjA5Mzg4NDE3NH0.Jkeyi-hA02od9fCzAPMFHzX5ZwdYgLjLjEQB5F12NZU'
+);
+
+async function loadTrainedFaqs() {
+  try {
+    const { data } = await chatSb.from('chatbot_faqs').select('keywords, answer');
+    trainedFaqs = (data || []).map(f => ({
+      words: (f.keywords || '').split(',').map(w => w.trim().toLowerCase()).filter(Boolean),
+      answer: f.answer
+    }));
+  } catch (e) { console.log('FAQ load error:', e); }
+}
 
 const CHAT_QUICK_REPLIES = [
   { label: '📷 প্যাকেজ ও মূল্য', key: 'packages' },
@@ -473,6 +490,11 @@ const CHAT_KEYWORDS = {
 
 function matchAnswer(text) {
   const t = text.toLowerCase();
+  // 1) Check owner-trained FAQs first (highest priority)
+  for (const faq of trainedFaqs) {
+    if (faq.words.some(w => w && t.includes(w))) return faq.answer;
+  }
+  // 2) Fall back to built-in rules
   for (const [key, words] of Object.entries(CHAT_KEYWORDS)) {
     if (words.some(w => t.includes(w.toLowerCase()))) return CHAT_ANSWERS[key];
   }
@@ -547,6 +569,7 @@ function openChatBot() {
   updateWaLink();
   if (!chatOpened) {
     chatOpened = true;
+    loadTrainedFaqs();
     renderQuickReplies();
     setTimeout(() => addMsg(CHAT_ANSWERS.greeting, 'bot'), 300);
   }
