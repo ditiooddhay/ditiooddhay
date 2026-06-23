@@ -276,11 +276,25 @@
           <label class="form-label">ক্যাটাগরি</label>
           <select class="form-select form-input" id="faqCategory">
             <option value="সাধারণ">সাধারণ</option>
-            <option value="প্যাকেজ ও মূল্য">প্যাকেজ ও মূল্য</option>
             <option value="বুকিং">বুকিং</option>
+            <option value="প্যাকেজ">প্যাকেজ</option>
+            <option value="মূল্য">মূল্য</option>
             <option value="পেমেন্ট">পেমেন্ট</option>
             <option value="ডেলিভারি">ডেলিভারি</option>
-            <option value="সার্ভিস">সার্ভিস</option>
+            <option value="টিম">টিম</option>
+            <option value="ফটোগ্রাফি">ফটোগ্রাফি</option>
+            <option value="সিনেমাটোগ্রাফি">সিনেমাটোগ্রাফি</option>
+            <option value="ড্রোন">ড্রোন</option>
+            <option value="অ্যালবাম">অ্যালবাম</option>
+            <option value="প্রি-ওয়েডিং">প্রি-ওয়েডিং</option>
+            <option value="ওয়েডিং">ওয়েডিং</option>
+            <option value="ইভেন্ট">ইভেন্ট</option>
+            <option value="কর্পোরেট">কর্পোরেট</option>
+            <option value="লোকেশন">লোকেশন</option>
+            <option value="এডিটিং">এডিটিং</option>
+            <option value="ট্রাভেল">ট্রাভেল</option>
+            <option value="বাতিলকরণ">বাতিলকরণ</option>
+            <option value="সাপোর্ট">সাপোর্ট</option>
           </select>
         </div>
         <div class="form-group full">
@@ -292,6 +306,24 @@
       <div style="display:flex;gap:.8rem;margin-top:1rem">
         <button class="btn-gold" onclick="saveFaq()" id="faqSaveBtn">&#10003; যোগ করুন</button>
         <button class="btn-outline" onclick="resetFaqForm()" id="faqCancelBtn" style="display:none">বাতিল</button>
+      </div>
+    </div>
+
+    <div class="form-card" style="border-color:rgba(201,168,76,.3)">
+      <div class="form-section">&#128229; JSON থেকে বাল্ক ইম্পোর্ট</div>
+      <p style="font-size:.78rem;color:var(--text-muted);margin-bottom:1rem">একসাথে অনেক প্রশ্ন-উত্তর যোগ করতে চাইলে .json ফাইল আপলোড করুন বা নিচে পেস্ট করুন।</p>
+      <div class="upload-area" style="padding:1rem;margin-bottom:1rem">
+        <input type="file" accept=".json,application/json" onchange="handleFaqJsonFile(this.files[0])">
+        <div class="upload-text"><strong>ক্লিক করুন</strong> — JSON ফাইল বেছে নিন</div>
+      </div>
+      <textarea class="form-textarea" id="faqJsonInput" oninput="validateFaqJsonPreview()" placeholder='[{"category":"...","keywords":["..."],"customer_questions":["..."],"answer":"...","related_questions":["..."]}]' style="min-height:90px;font-family:monospace;font-size:.78rem"></textarea>
+      <div id="faqImportPreview" style="font-size:.78rem;color:var(--gold);margin-top:.6rem"></div>
+      <div style="display:flex;align-items:center;gap:.6rem;margin-top:1rem;flex-wrap:wrap">
+        <button class="btn-gold" onclick="importFaqJson()" id="faqImportBtn">&#10003; ইম্পোর্ট করুন</button>
+        <label style="display:flex;align-items:center;gap:.4rem;font-size:.78rem;color:var(--text-muted);cursor:pointer">
+          <input type="checkbox" id="faqClearBeforeImport" style="accent-color:var(--gold)">
+          ইম্পোর্টের আগে পুরনো সব মুছে ফেলুন
+        </label>
       </div>
     </div>
 
@@ -943,6 +975,95 @@ function resetFaqForm() {
   document.getElementById('faqSuggested').value = '';
   document.getElementById('faqSaveBtn').textContent = '✓ যোগ করুন';
   document.getElementById('faqCancelBtn').style.display = 'none';
+}
+
+// ─── JSON BULK IMPORT ───
+function handleFaqJsonFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    document.getElementById('faqJsonInput').value = e.target.result;
+    validateFaqJsonPreview();
+  };
+  reader.readAsText(file);
+}
+
+function validateFaqJsonPreview() {
+  const raw = document.getElementById('faqJsonInput').value.trim();
+  const preview = document.getElementById('faqImportPreview');
+  if (!raw) { preview.textContent = ''; preview.style.color = 'var(--gold)'; return; }
+  try {
+    const arr = JSON.parse(raw);
+    if (!Array.isArray(arr)) throw new Error('JSON অ্যারে [...] হতে হবে');
+    const valid = arr.filter(x => x && x.answer && (x.keywords || x.customer_questions));
+    preview.style.color = 'var(--gold)';
+    preview.textContent = `✓ ${arr.length} টি এন্ট্রি পাওয়া গেছে, ${valid.length} টি ইম্পোর্টের জন্য প্রস্তুত।`;
+  } catch (e) {
+    preview.style.color = '#e07070';
+    preview.textContent = '✕ এটি সঠিক JSON ফরম্যাট নয়: ' + e.message;
+  }
+}
+
+async function importFaqJson() {
+  const raw = document.getElementById('faqJsonInput').value.trim();
+  if (!raw) { showToast('JSON ফাইল বা টেক্সট দিন!', 'error'); return; }
+
+  let arr;
+  try {
+    arr = JSON.parse(raw);
+    if (!Array.isArray(arr)) throw new Error('JSON অ্যারে হতে হবে');
+  } catch (e) {
+    showToast('JSON পার্স করা যায়নি: ' + e.message, 'error');
+    return;
+  }
+
+  const rows = arr
+    .filter(x => x && x.answer)
+    .map(x => {
+      const kw = []
+        .concat(x.keywords || [])
+        .concat(x.customer_questions || [])
+        .filter(Boolean)
+        .join(', ');
+      return {
+        keywords: kw,
+        answer: x.answer,
+        category: x.category || 'সাধারণ',
+        suggested_questions: (x.related_questions || []).filter(Boolean).join('\n')
+      };
+    });
+
+  if (!rows.length) { showToast('ইম্পোর্ট করার মতো কোনো বৈধ এন্ট্রি নেই।', 'error'); return; }
+
+  const btn = document.getElementById('faqImportBtn');
+  btn.disabled = true;
+  showLoading(`ইম্পোর্ট হচ্ছে... (0/${rows.length})`);
+
+  try {
+    if (document.getElementById('faqClearBeforeImport').checked) {
+      await sb.from('chatbot_faqs').delete().neq('id', 0);
+    }
+
+    const chunkSize = 50;
+    let done = 0;
+    for (let i = 0; i < rows.length; i += chunkSize) {
+      const chunk = rows.slice(i, i + chunkSize);
+      const { error } = await sb.from('chatbot_faqs').insert(chunk);
+      if (error) throw error;
+      done += chunk.length;
+      showLoading(`ইম্পোর্ট হচ্ছে... (${done}/${rows.length})`);
+    }
+
+    hideLoading();
+    showToast(`✓ ${rows.length} টি প্রশ্ন-উত্তর সফলভাবে ইম্পোর্ট হয়েছে!`, 'success');
+    document.getElementById('faqJsonInput').value = '';
+    document.getElementById('faqImportPreview').textContent = '';
+    loadFaqs();
+  } catch (e) {
+    hideLoading();
+    showToast('ইম্পোর্ট সমস্যা: ' + e.message, 'error');
+  }
+  btn.disabled = false;
 }
 
 async function deleteFaq(id) {
