@@ -255,17 +255,39 @@
     <div class="panel-title">চ্যাটবট <em>প্রশিক্ষণ</em></div>
     <div class="panel-sub">ক্লায়েন্টের সাধারণ প্রশ্নের জন্য কীওয়ার্ড ও উত্তর যোগ করুন — লাইভ চ্যাট সাথে সাথে এটা ব্যবহার করবে</div>
 
+    <div style="background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.25);padding:.9rem 1.1rem;margin-bottom:1.5rem;font-size:.78rem;color:var(--text-muted);line-height:1.7">
+      &#128161; <strong style="color:var(--gold)">পরামর্শ:</strong> উত্তরে সরাসরি দাম/টাকার অংক না লিখে ক্লায়েন্টকে বুকিং বা WhatsApp এ পাঠান — এতে সরাসরি কথা বলার সুযোগ তৈরি হয় এবং বুকিং হওয়ার সম্ভাবনা বাড়ে।
+    </div>
+
     <div class="form-card">
       <div class="form-section">নতুন প্রশ্ন-উত্তর যোগ করুন</div>
       <input type="hidden" id="faqEditId">
       <div class="form-group" style="margin-bottom:1rem">
         <label class="form-label">কীওয়ার্ড / প্রশ্নের ধরন (কমা দিয়ে আলাদা করুন)</label>
         <input type="text" class="form-input" id="faqKeywords" placeholder="যেমন: ডেলিভারি, ছবি কবে দেবেন, কত দিন লাগে">
-        <p style="font-size:.72rem;color:var(--text-muted);margin-top:.4rem">ক্লায়েন্ট যেসব শব্দ লিখতে পারে তার সবগুলো এখানে দিন — যত বেশি কীওয়ার্ড, বট তত ভালো বুঝবে</p>
+        <p style="font-size:.72rem;color:var(--text-muted);margin-top:.4rem">ক্লায়েন্ট যেসব শব্দ/বাক্য লিখতে পারে তার যত বেশি ধরন এখানে দিবেন, বট তত নির্ভুলভাবে বুঝবে। একাধিক শব্দের বাক্য (যেমন "ছবি কবে পাবো") দিলে সেটা আরও ভালো ম্যাচ করবে।</p>
       </div>
-      <div class="form-group">
+      <div class="form-group" style="margin-bottom:1rem">
         <label class="form-label">উত্তর</label>
-        <textarea class="form-textarea" id="faqAnswer" placeholder="যেমন: ছবি এডিট করে দিতে সর্বোচ্চ ১৫-২০ দিন সময় লাগে। ভিডিওর ক্ষেত্রে ৩০ দিন।" style="min-height:90px"></textarea>
+        <textarea class="form-textarea" id="faqAnswer" placeholder="যেমন: ছবি ও ভিডিও নির্ধারিত সময়ের মধ্যে এডিট করে ডেলিভারি দেওয়া হয়। বিস্তারিত জানতে WhatsApp করুন।" style="min-height:90px"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">ক্যাটাগরি</label>
+          <select class="form-select form-input" id="faqCategory">
+            <option value="সাধারণ">সাধারণ</option>
+            <option value="প্যাকেজ ও মূল্য">প্যাকেজ ও মূল্য</option>
+            <option value="বুকিং">বুকিং</option>
+            <option value="পেমেন্ট">পেমেন্ট</option>
+            <option value="ডেলিভারি">ডেলিভারি</option>
+            <option value="সার্ভিস">সার্ভিস</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">সম্পর্কিত প্রশ্ন (ঐচ্ছিক, প্রতি লাইনে একটি)</label>
+          <textarea class="form-textarea" id="faqSuggested" placeholder="ড্রোন আছে?&#10;ড্রোন চার্জ কত?" style="min-height:60px"></textarea>
+          <p style="font-size:.72rem;color:var(--text-muted);margin-top:.4rem">উত্তর দেখানোর পর এই প্রশ্নগুলো বাটন হিসেবে দেখাবে — চ্যাটবট আরও স্মার্ট মনে হবে (ঐচ্ছিক, ফাঁকা রাখতে পারেন)</p>
+        </div>
       </div>
       <div style="display:flex;gap:.8rem;margin-top:1rem">
         <button class="btn-gold" onclick="saveFaq()" id="faqSaveBtn">&#10003; যোগ করুন</button>
@@ -863,8 +885,12 @@ function renderFaqList() {
   }
   list.innerHTML = allFaqs.map(f => `
     <div style="background:var(--dark2);border:1px solid rgba(201,168,76,.15);padding:1rem 1.2rem">
-      <div style="font-size:.7rem;letter-spacing:1px;color:var(--gold);margin-bottom:.4rem">কীওয়ার্ড: ${f.keywords}</div>
+      <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;flex-wrap:wrap">
+        <span style="font-size:.62rem;letter-spacing:1px;text-transform:uppercase;color:var(--gold);border:1px solid rgba(201,168,76,.3);padding:2px 8px">${f.category || 'সাধারণ'}</span>
+      </div>
+      <div style="font-size:.7rem;letter-spacing:1px;color:var(--text-muted);margin-bottom:.4rem">কীওয়ার্ড: ${f.keywords}</div>
       <div style="font-size:.85rem;color:var(--cream);line-height:1.6;margin-bottom:.7rem">${f.answer}</div>
+      ${f.suggested_questions ? `<div style="font-size:.72rem;color:var(--text-muted);margin-bottom:.7rem">সম্পর্কিত প্রশ্ন: ${f.suggested_questions.split('\\n').filter(Boolean).join(' · ')}</div>` : ''}
       <div style="display:flex;gap:.5rem">
         <button class="btn-outline" onclick='editFaq(${JSON.stringify(f)})'>&#9998; এডিট</button>
         <button class="btn-red" onclick="deleteFaq(${f.id})">&#128465;</button>
@@ -876,14 +902,17 @@ function renderFaqList() {
 async function saveFaq() {
   const keywords = document.getElementById('faqKeywords').value.trim();
   const answer = document.getElementById('faqAnswer').value.trim();
+  const category = document.getElementById('faqCategory').value;
+  const suggested_questions = document.getElementById('faqSuggested').value.trim();
   if (!keywords || !answer) { showToast('কীওয়ার্ড ও উত্তর দুটোই দিন!', 'error'); return; }
   const editId = document.getElementById('faqEditId').value;
   showLoading('সেভ হচ্ছে...');
   try {
+    const payload = { keywords, answer, category, suggested_questions };
     if (editId) {
-      await sb.from('chatbot_faqs').update({ keywords, answer }).eq('id', editId);
+      await sb.from('chatbot_faqs').update(payload).eq('id', editId);
     } else {
-      await sb.from('chatbot_faqs').insert({ keywords, answer });
+      await sb.from('chatbot_faqs').insert(payload);
     }
     hideLoading();
     showToast('সেভ হয়েছে! ✓', 'success');
@@ -899,6 +928,8 @@ function editFaq(f) {
   document.getElementById('faqEditId').value = f.id;
   document.getElementById('faqKeywords').value = f.keywords || '';
   document.getElementById('faqAnswer').value = f.answer || '';
+  document.getElementById('faqCategory').value = f.category || 'সাধারণ';
+  document.getElementById('faqSuggested').value = f.suggested_questions || '';
   document.getElementById('faqSaveBtn').textContent = '✓ আপডেট করুন';
   document.getElementById('faqCancelBtn').style.display = 'inline-flex';
   document.querySelector('#panel-chatbot .form-card').scrollIntoView({ behavior: 'smooth' });
@@ -908,6 +939,8 @@ function resetFaqForm() {
   document.getElementById('faqEditId').value = '';
   document.getElementById('faqKeywords').value = '';
   document.getElementById('faqAnswer').value = '';
+  document.getElementById('faqCategory').value = 'সাধারণ';
+  document.getElementById('faqSuggested').value = '';
   document.getElementById('faqSaveBtn').textContent = '✓ যোগ করুন';
   document.getElementById('faqCancelBtn').style.display = 'none';
 }

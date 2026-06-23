@@ -451,10 +451,11 @@ const chatSb = supabase.createClient(
 
 async function loadTrainedFaqs() {
   try {
-    const { data } = await chatSb.from('chatbot_faqs').select('keywords, answer');
+    const { data } = await chatSb.from('chatbot_faqs').select('keywords, answer, suggested_questions');
     trainedFaqs = (data || []).map(f => ({
       words: (f.keywords || '').split(',').map(w => w.trim().toLowerCase()).filter(Boolean),
-      answer: f.answer
+      answer: f.answer,
+      suggested: (f.suggested_questions || '').split('\n').map(s => s.trim()).filter(Boolean)
     }));
   } catch (e) { console.log('FAQ load error:', e); }
 }
@@ -488,17 +489,27 @@ const CHAT_KEYWORDS = {
   thanks: ['ধন্যবাদ','thanks','thank you'],
 };
 
-function matchAnswer(text) {
+function findBestFaqMatch(text) {
   const t = text.toLowerCase();
-  // 1) Check owner-trained FAQs first (highest priority)
+  let best = null, bestScore = 0;
   for (const faq of trainedFaqs) {
-    if (faq.words.some(w => w && t.includes(w))) return faq.answer;
+    let score = 0;
+    for (const w of faq.words) {
+      if (w && t.includes(w)) score += w.split(/\s+/).filter(Boolean).length; // longer/specific phrases score higher
+    }
+    if (score > bestScore) { bestScore = score; best = faq; }
   }
-  // 2) Fall back to built-in rules
+  return bestScore > 0 ? best : null;
+}
+
+function respondTo(text) {
+  const t = text.toLowerCase();
+  const faqMatch = findBestFaqMatch(text);
+  if (faqMatch) { botReplyWithFollowups(faqMatch.answer, faqMatch.suggested, 650); return; }
   for (const [key, words] of Object.entries(CHAT_KEYWORDS)) {
-    if (words.some(w => t.includes(w.toLowerCase()))) return CHAT_ANSWERS[key];
+    if (words.some(w => t.includes(w.toLowerCase()))) { botReply(CHAT_ANSWERS[key], 650); return; }
   }
-  return CHAT_ANSWERS.fallback;
+  botReply(CHAT_ANSWERS.fallback, 650);
 }
 
 function updateWaLink(context) {
@@ -539,6 +550,30 @@ function botReply(text, delay) {
   }, delay || 600);
 }
 
+function botReplyWithFollowups(text, suggested, delay) {
+  showTyping();
+  setTimeout(() => {
+    hideTyping();
+    addMsg(text, 'bot');
+    if (suggested && suggested.length) {
+      const body = document.getElementById('chatBody');
+      const wrap = document.createElement('div');
+      wrap.style.cssText = 'display:flex;flex-wrap:wrap;gap:.4rem;align-self:flex-start;max-width:90%';
+      wrap.innerHTML = suggested.map(q =>
+        `<button class="chat-quick-btn" style="font-size:.72rem;padding:.35rem .7rem" onclick="handleFollowup('${q.replace(/'/g, "&#39;")}')">${q}</button>`
+      ).join('');
+      body.appendChild(wrap);
+      body.scrollTop = body.scrollHeight;
+    }
+  }, delay || 600);
+}
+
+function handleFollowup(question) {
+  addMsg(question, 'user');
+  updateWaLink(question);
+  respondTo(question);
+}
+
 function renderQuickReplies() {
   const wrap = document.getElementById('chatQuickWrap');
   wrap.innerHTML = CHAT_QUICK_REPLIES.map(q =>
@@ -560,7 +595,7 @@ function sendChatMessage() {
   addMsg(text, 'user');
   updateWaLink(text);
   input.value = '';
-  botReply(matchAnswer(text), 650);
+  respondTo(text);
 }
 
 function openChatBot() {
