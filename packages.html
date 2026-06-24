@@ -63,6 +63,18 @@
   .nav-back { display:inline-flex; align-items:center; gap:.4rem; color:var(--text-muted); text-decoration:none; font-size:.72rem; letter-spacing:1.5px; text-transform:uppercase; border:1px solid rgba(201,168,76,.2); padding:.38rem .9rem; transition:all .25s; background:rgba(255,255,255,.02); margin-left:auto; flex-shrink:0; }
   .nav-back:hover { color:var(--gold); border-color:rgba(201,168,76,.5); background:rgba(201,168,76,.06); }
 
+  /* SCROLL TO TOP WITH PROGRESS RING */
+  #scrollTopBtn { position:fixed; right:1.2rem; bottom:1.5rem; z-index:200; width:50px; height:50px; border-radius:50%; cursor:pointer; opacity:0; visibility:hidden; transform:translateY(10px); transition:opacity .3s ease, visibility .3s ease, transform .3s ease; background:rgba(14,12,10,.92); border:1px solid rgba(201,168,76,.4); box-shadow:0 6px 20px rgba(0,0,0,.4); backdrop-filter:blur(6px); }
+  #scrollTopBtn.show { opacity:1; visibility:visible; transform:translateY(0); }
+  #scrollTopBtn:hover { border-color:var(--gold); background:rgba(201,168,76,.1); }
+  #scrollTopBtn:hover .stp-chevron { transform:translateY(-1px); }
+  .stp-ring { position:absolute; inset:0; width:50px; height:50px; transform:rotate(-90deg); overflow:visible; }
+  .stp-track { fill:none; stroke:rgba(201,168,76,.18); stroke-width:2.5; }
+  .stp-progress { fill:none; stroke:var(--gold-light); stroke-width:2.5; stroke-linecap:round; stroke-dasharray:138.2; stroke-dashoffset:138.2; transition:stroke-dashoffset .15s linear; }
+  .stp-chevron { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; transition:transform .25s ease; }
+  .stp-chevron svg { width:18px; height:18px; }
+  @media(min-width:600px){ #scrollTopBtn { right:1.8rem; bottom:2rem; } }
+
 
   /* HERO */
   .page-hero { padding:7rem 2rem 3.5rem; text-align:center; background:radial-gradient(ellipse at 50% 0%,rgba(201,168,76,.1) 0%,transparent 65%); border-bottom:1px solid rgba(201,168,76,.1); }
@@ -1066,6 +1078,35 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js').catch(e => console.log('SW error:', e));
   });
 }
+</script>
+<button id="scrollTopBtn" onclick="window.scrollTo({top:0, behavior:'smooth'})" aria-label="উপরে যান">
+  <svg class="stp-ring" viewBox="0 0 50 50">
+    <circle class="stp-track" cx="25" cy="25" r="22"></circle>
+    <circle class="stp-progress" cx="25" cy="25" r="22" id="stpProgressCircle"></circle>
+  </svg>
+  <div class="stp-chevron">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 15l6-6 6 6"></path>
+    </svg>
+  </div>
+</button>
+
+<script>
+(function() {
+  const btn = document.getElementById('scrollTopBtn');
+  const circle = document.getElementById('stpProgressCircle');
+  const circumference = 138.2;
+  function toggleBtn() {
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = docHeight > 0 ? Math.min(scrollTop / docHeight, 1) : 0;
+    circle.style.strokeDashoffset = circumference - (progress * circumference);
+    if (scrollTop > 350) btn.classList.add('show');
+    else btn.classList.remove('show');
+  }
+  window.addEventListener('scroll', toggleBtn, { passive: true });
+  toggleBtn();
+})();
 </script>
 </body>
 </html>
