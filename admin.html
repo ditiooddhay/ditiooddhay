@@ -179,6 +179,16 @@
     <button class="header-back-btn" id="headerBackBtn" onclick="switchTab('dashboard')">ড্যাশবোর্ড</button>
   </div>
 
+  <!-- PUSH NOTIFICATION BANNER -->
+  <div id="pushNotifyBanner" style="display:none; max-width:1000px; margin:1rem auto 0; padding:0 1.5rem;">
+    <div style="background:rgba(201,168,76,.08); border:1px solid rgba(201,168,76,.3); padding:.9rem 1.2rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
+      <span style="font-size:1.2rem">&#128276;</span>
+      <span style="flex:1; font-size:.85rem; color:var(--cream)">আগামীকালের ইভেন্ট থাকলে ফোনে নোটিফিকেশন পেতে চালু করুন</span>
+      <button class="btn-gold" onclick="enablePushNotifications()" id="pushEnableBtn" style="padding:.5rem 1.1rem; font-size:.8rem">চালু করুন</button>
+      <button class="btn-outline" onclick="dismissPushBanner()" style="padding:.5rem .8rem; font-size:.8rem">পরে</button>
+    </div>
+  </div>
+
   <!-- DASHBOARD -->
   <div class="panel active" id="panel-dashboard">
     <div class="panel-title">স্বাগতম, <em>দ্বিতীয় অধ্যায়</em></div>
@@ -1650,6 +1660,87 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js').catch(e => console.log('SW error:', e));
   });
 }
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDebW-daQXFTIRTb9ieu0BYi9x8cnLcK5w",
+  authDomain: "ditiooddhay-8207a.firebaseapp.com",
+  projectId: "ditiooddhay-8207a",
+  storageBucket: "ditiooddhay-8207a.firebasestorage.app",
+  messagingSenderId: "669700279571",
+  appId: "1:669700279571:web:d88dbbe62e9d6c0c6bdee6"
+};
+const VAPID_KEY = "BK2saqLmliq984xzA86Sl27qxcSkeRZjetLqkfD3N92lPG5JtuhBiJFPu1825AKuW0e4kvcxR_ai9jQqJ3ndfW4";
+
+let fbMessaging = null;
+try {
+  const fbApp = initializeApp(firebaseConfig);
+  fbMessaging = getMessaging(fbApp);
+} catch (e) { console.log('Firebase init error:', e); }
+
+window.dismissPushBanner = function() {
+  document.getElementById('pushNotifyBanner').style.display = 'none';
+  localStorage.setItem('ditio_push_dismissed', 'true');
+};
+
+window.enablePushNotifications = async function() {
+  const btn = document.getElementById('pushEnableBtn');
+  btn.disabled = true;
+  btn.textContent = 'প্রসেস হচ্ছে...';
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') {
+      alert('নোটিফিকেশন পারমিশন দেওয়া হয়নি। ব্রাউজার সেটিংস থেকে পারমিশন দিতে হবে।');
+      btn.disabled = false; btn.textContent = 'চালু করুন';
+      return;
+    }
+    const registration = await navigator.serviceWorker.register('/sw.js');
+    await navigator.serviceWorker.ready;
+    const token = await getToken(fbMessaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: registration });
+    if (token) {
+      await sb.from('push_subscriptions').insert({ fcm_token: token });
+      localStorage.setItem('ditio_push_enabled', 'true');
+      document.getElementById('pushNotifyBanner').style.display = 'none';
+      showToast('নোটিফিকেশন চালু হয়েছে! ✓', 'success');
+    } else {
+      alert('টোকেন পাওয়া যায়নি, আবার চেষ্টা করুন।');
+    }
+  } catch (e) {
+    console.error(e);
+    alert('সমস্যা হয়েছে: ' + e.message);
+  }
+  btn.disabled = false;
+  btn.textContent = 'চালু করুন';
+};
+
+// Show in-app alert if a push arrives while admin panel is open
+try {
+  onMessage(fbMessaging, (payload) => {
+    const title = (payload.notification && payload.notification.title) || 'দ্বিতীয় অধ্যায়';
+    const body = (payload.notification && payload.notification.body) || '';
+    if (typeof showToast === 'function') showToast(title + ': ' + body, 'success');
+    else alert(title + '\n' + body);
+  });
+} catch (e) { console.log('onMessage setup error:', e); }
+
+// Show the banner once admin is logged in, unless already enabled/dismissed
+document.addEventListener('DOMContentLoaded', () => {
+  const enabled = localStorage.getItem('ditio_push_enabled') === 'true';
+  const dismissed = localStorage.getItem('ditio_push_dismissed') === 'true';
+  if (!enabled && !dismissed && 'Notification' in window && Notification.permission !== 'denied') {
+    const checkVisible = setInterval(() => {
+      const screen = document.getElementById('adminScreen');
+      if (screen && screen.style.display !== 'none' && screen.offsetParent !== null) {
+        document.getElementById('pushNotifyBanner').style.display = 'block';
+        clearInterval(checkVisible);
+      }
+    }, 500);
+  }
+});
 </script>
 </body>
 </html>
