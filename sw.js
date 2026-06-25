@@ -35,13 +35,17 @@ const ASSETS = [
   '/contact.html',
   '/reviews.html',
   '/schedule.html',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
+  '/icon-192.png',
+  '/icon-512.png',
 ];
 
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting())
+    caches.open(CACHE).then(cache => {
+      return Promise.all(
+        ASSETS.map(url => cache.add(url).catch(err => console.log('Cache skip:', url, err)))
+      );
+    }).then(() => self.skipWaiting())
   );
 });
 
