@@ -157,7 +157,7 @@ footer span{color:var(--gold)}
 
 <div class="page-hero">
   <div class="page-badge" style="display:inline-flex;align-items:center;gap:.6rem">
-    <a href="schedule_details.html" title="শিডিউল ডিটেইলস" style="display:inline-flex;align-items:center;color:var(--gold);text-decoration:none;font-size:.9rem;transition:opacity .25s" onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'">&#128196;</a>
+    <span id="schDetailsTrigger" title="" style="display:inline-flex;align-items:center;color:var(--gold);cursor:default;font-size:.9rem;user-select:none" onclick="handleSchDetailsClick()">&#128196;</span>
     Schedule
   </div>
   <h1 class="page-title">আমাদের <em>শিডিউল</em></h1>
@@ -385,6 +385,20 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch(e => console.log('SW error:', e));
   });
+}
+</script>
+<script>
+let _schDetailsClickCount = 0;
+let _schDetailsClickTimer = null;
+function handleSchDetailsClick() {
+  _schDetailsClickCount++;
+  clearTimeout(_schDetailsClickTimer);
+  if (_schDetailsClickCount >= 5) {
+    _schDetailsClickCount = 0;
+    window.location.href = 'schedule_details.html';
+    return;
+  }
+  _schDetailsClickTimer = setTimeout(() => { _schDetailsClickCount = 0; }, 3000);
 }
 </script>
 </body>
