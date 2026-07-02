@@ -224,6 +224,81 @@
   @keyframes loaderBar { 0% { transform: translateX(-100%); } 100% { transform: translateX(280%); } }
   .loader-text { font-family: 'Hind Siliguri', sans-serif; font-size: .7rem; letter-spacing: 3px; text-transform: uppercase; color: rgba(201,168,76,.5); }
 
+  /* ═══ CUSTOM PACKAGE BUILDER ═══ */
+  .cb-wrap { max-width:640px; margin:0 auto; }
+  .step-track { display:flex; align-items:center; justify-content:center; gap:.4rem; padding:0 1rem 1.6rem; }
+  .step-dot { width:26px; height:26px; border-radius:50%; border:1px solid rgba(201,168,76,.3); display:flex; align-items:center; justify-content:center; font-size:.7rem; color:var(--text-muted); background:var(--dark2); transition:all .3s; flex-shrink:0; }
+  .step-dot.active { border-color:var(--gold); color:var(--dark); background:var(--gold); font-weight:700; }
+  .step-dot.done { border-color:var(--gold); color:var(--gold); background:rgba(201,168,76,.12); }
+  .step-line { width:24px; height:1px; background:rgba(201,168,76,.2); flex-shrink:0; }
+  .step-line.done { background:var(--gold); }
+
+  .cb-panel { display:none; animation:fadeUp .4s ease; }
+  .cb-panel.active { display:block; }
+
+  .cb-sect-title { font-family:'Playfair Display',serif; font-size:1.15rem; color:var(--cream); margin-bottom:.3rem; }
+  .cb-sect-sub { color:var(--text-muted); font-size:.8rem; margin-bottom:1.3rem; line-height:1.7; }
+
+  .check-grid { display:grid; grid-template-columns:1fr; gap:.7rem; }
+  .check-card { background:var(--dark2); border:1px solid rgba(201,168,76,.15); padding:1rem 1.1rem; display:flex; align-items:center; gap:.8rem; cursor:pointer; transition:all .25s; }
+  .check-card:hover { border-color:rgba(201,168,76,.4); }
+  .check-card.checked { border-color:var(--gold); background:rgba(201,168,76,.08); }
+  .check-box { width:20px; height:20px; border:1.5px solid rgba(201,168,76,.4); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:.7rem; color:var(--dark); transition:all .2s; }
+  .check-card.checked .check-box { background:var(--gold); border-color:var(--gold); }
+  .check-icon { font-size:1.3rem; }
+  .check-label { font-size:.9rem; color:var(--cream); font-weight:500; }
+  .check-hint { font-size:.7rem; color:var(--text-muted); margin-top:2px; }
+
+  .day-panel { background:var(--dark2); border:1px solid rgba(201,168,76,.15); margin-bottom:1.2rem; overflow:hidden; }
+  .day-head { padding:.9rem 1.1rem; background:rgba(201,168,76,.06); border-bottom:1px solid rgba(201,168,76,.12); font-size:.88rem; color:var(--gold); font-weight:600; }
+  .day-body { padding:1.1rem; }
+  .cb-field-label { font-size:.72rem; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-muted); margin-bottom:.6rem; }
+  .cb-opt-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(90px,1fr)); gap:.5rem; margin-bottom:1.1rem; }
+  .cb-opt-btn { background:var(--dark3); border:1px solid rgba(201,168,76,.18); color:var(--text-muted); padding:.6rem .5rem; font-size:.78rem; text-align:center; cursor:pointer; transition:all .2s; }
+  .cb-opt-btn.selected { border-color:var(--gold); color:var(--gold); background:rgba(201,168,76,.1); }
+  .cb-opt-btn:active { transform:scale(.97); }
+
+  .cb-opt-row.team-row { grid-template-columns:1fr; }
+  .cb-opt-row.team-row .cb-opt-btn { text-align:left; padding:.7rem .9rem; }
+
+  .cb-nav-btns { display:flex; gap:.7rem; margin-top:1.6rem; }
+  .cb-btn { flex:1; text-align:center; padding:.85rem; font-size:.82rem; font-weight:600; letter-spacing:.5px; cursor:pointer; border:1px solid rgba(201,168,76,.3); transition:all .25s; background:transparent; color:var(--gold); text-decoration:none; }
+  .cb-btn:hover { background:var(--gold); color:var(--dark); }
+  .cb-btn.primary { background:var(--gold); color:var(--dark); }
+  .cb-btn.primary:hover { background:var(--gold-light); }
+  .cb-btn.ghost { border-color:rgba(201,168,76,.15); color:var(--text-muted); }
+  .cb-btn:disabled { opacity:.35; pointer-events:none; }
+
+  .estimate-box { background:linear-gradient(135deg,rgba(201,168,76,.12),rgba(201,168,76,.03)); border:1px solid rgba(201,168,76,.35); padding:1.6rem 1.3rem; text-align:center; margin-bottom:1.2rem; }
+  .estimate-label { font-size:.68rem; letter-spacing:2px; text-transform:uppercase; color:var(--text-muted); margin-bottom:.5rem; }
+  .estimate-price { font-family:'Playfair Display',serif; font-size:2rem; color:var(--gold); line-height:1.2; }
+  .estimate-price span { font-size:.85rem; color:var(--text-muted); font-family:'Hind Siliguri',sans-serif; }
+  .combo-badge { display:inline-block; margin-top:.8rem; font-size:.72rem; color:var(--dark); background:linear-gradient(135deg,var(--gold),var(--gold-light)); padding:4px 14px; font-weight:700; }
+
+  .breakdown { background:var(--dark2); border:1px solid rgba(201,168,76,.12); margin-bottom:1.2rem; }
+  .breakdown-row { padding:.8rem 1.1rem; border-bottom:1px solid rgba(201,168,76,.08); display:flex; justify-content:space-between; align-items:center; font-size:.82rem; gap:.8rem; }
+  .breakdown-row:last-child { border-bottom:none; }
+  .breakdown-row .bd-name { color:var(--cream); }
+  .breakdown-row .bd-meta { color:var(--text-muted); font-size:.7rem; display:block; margin-top:2px; }
+  .breakdown-row .bd-price { color:var(--gold); font-weight:600; white-space:nowrap; }
+
+  .budget-box { background:var(--dark2); border:1px solid rgba(201,168,76,.15); padding:1.2rem 1.1rem; margin-bottom:1.2rem; }
+  .budget-input-row { display:flex; gap:.6rem; margin-top:.8rem; }
+  .budget-input-row input { flex:1; background:var(--dark3); border:1px solid rgba(201,168,76,.25); color:var(--cream); padding:.7rem .9rem; font-size:.9rem; font-family:'Hind Siliguri',sans-serif; }
+  .budget-input-row input:focus { outline:none; border-color:var(--gold); }
+  .budget-result { margin-top:1rem; padding:.9rem; background:rgba(201,168,76,.08); border-left:3px solid var(--gold); font-size:.8rem; line-height:1.8; display:none; }
+  .budget-result.show { display:block; }
+
+  .action-grid { display:grid; grid-template-columns:1fr; gap:.7rem; margin-bottom:1.2rem; }
+  .action-card { background:var(--dark2); border:1px solid rgba(201,168,76,.18); padding:1rem 1.1rem; display:flex; align-items:center; gap:.9rem; text-decoration:none; color:var(--cream); transition:all .25s; cursor:pointer; }
+  .action-card:hover { border-color:var(--gold); background:rgba(201,168,76,.06); }
+  .action-icon { font-size:1.4rem; flex-shrink:0; }
+  .action-title { font-size:.85rem; font-weight:600; }
+  .action-sub { font-size:.7rem; color:var(--text-muted); margin-top:2px; }
+
+  .cb-toast { position:fixed; bottom:1.5rem; left:50%; transform:translateX(-50%) translateY(20px); background:var(--gold); color:var(--dark); padding:.7rem 1.4rem; font-size:.82rem; font-weight:600; opacity:0; transition:all .3s; z-index:999; white-space:nowrap; }
+  .cb-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
 </style>
 </head>
 <body>
@@ -267,6 +342,11 @@
     <span class="cat-tab-icon">🌿</span>
     <span class="cat-tab-label">প্রি/পোস্ট ওয়েডিং</span>
     <span class="cat-tab-hint">৯টি প্যাকেজ</span>
+  </button>
+  <button class="cat-tab" onclick="switchCat('custom')">
+    <span class="cat-tab-icon">🛠️</span>
+    <span class="cat-tab-label">কাস্টমাইজ প্যাকেজ</span>
+    <span class="cat-tab-hint">নিজের মতো বানান</span>
   </button>
 </div>
 
@@ -1031,6 +1111,139 @@
   </div>
 </div>
 
+<!-- ─── CATEGORY 6: CUSTOM PACKAGE BUILDER ─── -->
+<div class="cat-section" id="cat-custom">
+  <div class="cat-header">
+    <div class="cat-icon">🛠️</div>
+    <div class="cat-title">নিজের প্যাকেজ বানান</div>
+    <div class="cat-desc">আপনার চাহিদা অনুযায়ী ধাপে ধাপে বেছে নিন, সাথে সাথে এস্টিমেট পাবেন</div>
+  </div>
+
+  <div class="cb-wrap">
+    <div class="step-track">
+      <div class="step-dot active" id="cb-dot-1">১</div>
+      <div class="step-line" id="cb-line-1"></div>
+      <div class="step-dot" id="cb-dot-2">২</div>
+      <div class="step-line" id="cb-line-2"></div>
+      <div class="step-dot" id="cb-dot-3">৩</div>
+      <div class="step-line" id="cb-line-3"></div>
+      <div class="step-dot" id="cb-dot-4">৪</div>
+    </div>
+
+    <!-- STEP 1 -->
+    <div class="cb-panel active" id="cb-panel-1">
+      <div class="cb-sect-title">কোন কোন দিনের জন্য?</div>
+      <div class="cb-sect-sub">যে যে অনুষ্ঠানের জন্য কভারেজ প্রয়োজন, সিলেক্ট করুন (একাধিক নির্বাচন করা যাবে)</div>
+      <div class="check-grid" id="cbEventGrid">
+        <div class="check-card" data-event="holud">
+          <div class="check-box">✓</div>
+          <div><div class="check-icon">🌼</div></div>
+          <div><div class="check-label">হলুদের দিন</div><div class="check-hint">Holud Ceremony</div></div>
+        </div>
+        <div class="check-card" data-event="wedding">
+          <div class="check-box">✓</div>
+          <div><div class="check-icon">💍</div></div>
+          <div><div class="check-label">বিয়ের দিন</div><div class="check-hint">Wedding Day</div></div>
+        </div>
+        <div class="check-card" data-event="reception">
+          <div class="check-box">✓</div>
+          <div><div class="check-icon">🥂</div></div>
+          <div><div class="check-label">রিসেপশনের দিন</div><div class="check-hint">Reception</div></div>
+        </div>
+      </div>
+      <div class="cb-nav-btns">
+        <button class="cb-btn primary" id="cbToStep2" disabled onclick="cbGoStep(2)">পরবর্তী ধাপ →</button>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="cb-panel" id="cb-panel-2">
+      <div class="cb-sect-title">প্রতিটা দিনের বিস্তারিত</div>
+      <div class="cb-sect-sub">প্রতিটা নির্বাচিত দিনের জন্য সার্ভিস, কভারেজ, সময় ও চীফ টিম মেম্বার বেছে নিন</div>
+      <div id="cbDayPanels"></div>
+      <div class="cb-nav-btns">
+        <button class="cb-btn ghost" onclick="cbGoStep(1)">← পেছনে</button>
+        <button class="cb-btn primary" onclick="cbCalculateEstimate(); cbGoStep(3)">এস্টিমেট দেখুন →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="cb-panel" id="cb-panel-3">
+      <div class="cb-sect-title">আপনার এস্টিমেট</div>
+      <div class="cb-sect-sub">নিচের হিসাব আপনার নির্বাচন অনুযায়ী তৈরি — এটি একটি আনুমানিক মূল্য, চূড়ান্ত মূল্য যোগাযোগের পর নিশ্চিত হবে</div>
+
+      <div class="estimate-box">
+        <div class="estimate-label">মোট আনুমানিক খরচ</div>
+        <div class="estimate-price" id="cbEstimateTotal">৳০ <span>– ৳০</span></div>
+        <div id="cbComboBadgeWrap"></div>
+      </div>
+
+      <div class="breakdown" id="cbBreakdownList"></div>
+
+      <div class="note-box">
+        <strong>বিশেষ নোট:</strong> এটি একটি স্বয়ংক্রিয় আনুমানিক হিসাব, আমাদের এক্সিস্টিং প্যাকেজের দাম অনুযায়ী তৈরি। ইনডোর/আউটডোর কভারেজের জন্য আলাদা কোনো চার্জ নেই। একাধিক দিন বুক করলে কম্বো ছাড় স্বয়ংক্রিয়ভাবে প্রযোজ্য হয়েছে। চীফ ফটোগ্রাফার/সিনেমাটোগ্রাফার নির্বাচন না করলে সর্বনিম্ন প্যাকেজ মূল্য ধরা হয়েছে, নির্বাচন করলে নির্দিষ্ট চীফ মূল্য ধরা হয়েছে।
+      </div>
+
+      <div class="cb-nav-btns">
+        <button class="cb-btn ghost" onclick="cbGoStep(2)">← পেছনে</button>
+        <button class="cb-btn primary" onclick="cbGoStep(4)">পরবর্তী ধাপ →</button>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="cb-panel" id="cb-panel-4">
+      <div id="cbFormWrap">
+        <div class="cb-sect-title">চূড়ান্ত করুন</div>
+        <div class="cb-sect-sub">আপনার তথ্য জমা দিন — আমরা যোগাযোগ করব। চাইলে বাজেট বলতে পারেন বা সরাসরি WhatsApp করতে পারেন</div>
+
+        <div class="budget-box">
+          <div class="cb-field-label">আপনার নাম *</div>
+          <div class="budget-input-row">
+            <input type="text" id="cbNameInput" placeholder="আপনার পূর্ণ নাম">
+          </div>
+          <div class="cb-field-label" style="margin-top:1rem;">মোবাইল নম্বর *</div>
+          <div class="budget-input-row">
+            <input type="tel" id="cbPhoneInput" placeholder="যেমন: 01XXXXXXXXX">
+          </div>
+          <div class="cb-field-label" style="margin-top:1rem;">আপনার বাজেট (ঐচ্ছিক)</div>
+          <div class="budget-input-row">
+            <input type="number" id="cbBudgetInput" placeholder="যেমন: ১৫০০০">
+            <button class="cb-btn primary" style="flex:0 0 auto;padding:.7rem 1.1rem;" onclick="cbCheckBudget()">চেক করুন</button>
+          </div>
+          <div class="budget-result" id="cbBudgetResult"></div>
+        </div>
+
+        <div class="cb-nav-btns" style="margin-top:0;margin-bottom:1.2rem;">
+          <button class="cb-btn primary" id="cbSubmitBtn" onclick="cbSubmit()">তথ্য জমা দিন</button>
+        </div>
+
+        <div class="action-grid">
+          <a href="#" class="action-card" id="cbWaBtn" target="_blank">
+            <div class="action-icon">💬</div>
+            <div><div class="action-title">WhatsApp এ পাঠান</div><div class="action-sub">সরাসরি আমাদের সাথে যোগাযোগ করুন</div></div>
+          </a>
+          <div class="action-card" onclick="cbCopySummary()">
+            <div class="action-icon">📋</div>
+            <div><div class="action-title">সামারি কপি করুন</div><div class="action-sub">শেয়ার করার জন্য টেক্সট কপি হবে</div></div>
+          </div>
+        </div>
+
+        <div class="cb-nav-btns">
+          <button class="cb-btn ghost" onclick="cbGoStep(3)">← পেছনে</button>
+          <button class="cb-btn ghost" onclick="cbReset()">নতুন করে শুরু</button>
+        </div>
+      </div>
+
+      <div id="cbSuccessWrap" style="display:none;text-align:center;padding:2rem 1rem;">
+        <div style="font-size:2.6rem;margin-bottom:1rem;">✅</div>
+        <div class="cb-sect-title">তথ্য জমা হয়েছে!</div>
+        <div class="cb-sect-sub">আপনার সাথে দ্বিতীয় অধ্যায়ের একজন প্রতিনিধি শীঘ্রই যোগাযোগ করবে।</div>
+        <button class="cb-btn ghost" onclick="cbReset()" style="max-width:220px;margin:1rem auto 0;">নতুন করে শুরু</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <footer>
   <p>&#169; ২০১৯ <span>দ্বিতীয় অধ্যায়</span> · ওয়েডিং ফটোগ্রাফি · পঞ্চগড় · 📞 01774-284200</p>
 </footer>
@@ -1040,7 +1253,7 @@ function switchCat(name) {
   document.querySelectorAll('.cat-section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('cat-' + name).classList.add('active');
-  document.querySelectorAll('.cat-tab')[['photo','combo','cinema','hindu','outdoor'].indexOf(name)].classList.add('active');
+  document.querySelectorAll('.cat-tab')[['photo','combo','cinema','hindu','outdoor','custom'].indexOf(name)].classList.add('active');
   const ph = document.getElementById('pkg-placeholder');
   if (ph) ph.style.display = 'none';
   // Auto-scroll to packages on mobile
@@ -1091,6 +1304,294 @@ if ('serviceWorker' in navigator) {
     </svg>
   </div>
 </button>
+
+<script>
+/* ═══ CUSTOM PACKAGE BUILDER LOGIC ═══ */
+(function() {
+  const EVENT_LABELS = { holud:'হলুদের দিন', wedding:'বিয়ের দিন', reception:'রিসেপশনের দিন' };
+  const EVENT_ICON = { holud:'🌼', wedding:'💍', reception:'🥂' };
+
+  // "যেকোনো একজন" (non-chief) team selection always uses the lowest-priced real
+  // packages (P1/P2, C1/C2, PC1/PC2) — duration and indoor/outdoor coverage do NOT
+  // change the price; they're kept only as informational fields for the final quote.
+  const ANY_PRICE = { photo:[5000,7000], cinema:[5000,7000], combo:[10000,14000] };
+  // Fixed "chief" package prices (P3=চীফ ফটোগ্রাফার, C4=চীফ সিনেমাটোগ্রাফার, PC3=উভয় চীফ)
+  const CHIEF_PRICE = { photo:10000, cinema:10000, combo:17000 };
+  const SERVICE_LABELS = { photo:'ফটোগ্রাফি', cinema:'সিনেমাটোগ্রাফি', combo:'ফটো + সিনেমাটোগ্রাফি' };
+  const DURATION_LABELS = { short:'অল্প সময় (৩ ঘন্টা)', half:'অর্ধেক দিন (৫ ঘন্টা)', full:'পুরো ইভেন্ট কভার' };
+
+  // কাস্টম প্যাকেজের জন্য আলাদা standalone Apps Script deployment
+  const SUBMIT_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwD5Bsp42UDmRwDue_M3iFFr4MzHDpat-3jkMyUkEoj6YKMF834ZWCKoVmjOcC6OIUK/exec';
+
+  let selectedEvents = [];
+  let dayConfig = {};
+  let lastEstimate = null;
+
+  window.cbGoStep = function(n) {
+    document.querySelectorAll('.cb-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('cb-panel-'+n).classList.add('active');
+    for (let i=1;i<=4;i++) {
+      const dot = document.getElementById('cb-dot-'+i);
+      dot.classList.remove('active','done');
+      if (i < n) dot.classList.add('done');
+      else if (i === n) dot.classList.add('active');
+    }
+    for (let i=1;i<=3;i++) document.getElementById('cb-line-'+i).classList.toggle('done', i < n);
+    const section = document.getElementById('cat-custom');
+    if (section) window.scrollTo({ top: section.getBoundingClientRect().top + window.scrollY - 70, behavior:'smooth' });
+    if (n === 2) renderDayPanels();
+    if (n === 4) updateWhatsAppLink();
+  };
+
+  window.cbReset = function() {
+    selectedEvents = []; dayConfig = {}; lastEstimate = null;
+    document.querySelectorAll('#cbEventGrid .check-card').forEach(c => c.classList.remove('checked'));
+    document.getElementById('cbToStep2').disabled = true;
+    document.getElementById('cbBudgetInput').value = '';
+    document.getElementById('cbBudgetResult').classList.remove('show');
+    document.getElementById('cbNameInput').value = '';
+    document.getElementById('cbPhoneInput').value = '';
+    document.getElementById('cbFormWrap').style.display = '';
+    document.getElementById('cbSuccessWrap').style.display = 'none';
+    const btn = document.getElementById('cbSubmitBtn');
+    btn.disabled = false; btn.textContent = 'তথ্য জমা দিন';
+    cbGoStep(1);
+  };
+
+  window.cbSubmit = async function() {
+    const name = document.getElementById('cbNameInput').value.trim();
+    const phone = document.getElementById('cbPhoneInput').value.trim();
+    if (!name) { cbToast('আপনার নাম দিন'); return; }
+    if (!phone) { cbToast('মোবাইল নম্বর দিন'); return; }
+    if (!lastEstimate) { cbToast('আগে এস্টিমেট দেখুন'); return; }
+
+    const payload = {
+      type: 'custom_package',
+      name, phone,
+      budget: document.getElementById('cbBudgetInput').value || '',
+      estimateMin: lastEstimate.finalMin,
+      estimateMax: lastEstimate.finalMax,
+      summaryText: buildSummaryText(),
+      submittedAt: new Date().toString()
+    };
+
+    const btn = document.getElementById('cbSubmitBtn');
+    btn.disabled = true; btn.textContent = 'জমা হচ্ছে...';
+
+    if (!SUBMIT_ENDPOINT || SUBMIT_ENDPOINT.indexOf('YOUR_') === 0) {
+      cbToast('সাবমিট এন্ডপয়েন্ট এখনো সেটআপ হয়নি — WhatsApp ব্যবহার করুন');
+      btn.disabled = false; btn.textContent = 'তথ্য জমা দিন';
+      return;
+    }
+
+    try {
+      const res = await fetch(SUBMIT_ENDPOINT, { method: 'POST', body: JSON.stringify(payload) });
+      const json = await res.json().catch(() => ({ status: 'success' }));
+      if (json.status === 'error') throw new Error(json.message || 'unknown');
+      document.getElementById('cbFormWrap').style.display = 'none';
+      document.getElementById('cbSuccessWrap').style.display = '';
+    } catch (err) {
+      btn.disabled = false; btn.textContent = 'তথ্য জমা দিন';
+      cbToast('জমা করা যায়নি — WhatsApp ব্যবহার করুন');
+    }
+  };
+
+  document.querySelectorAll('#cbEventGrid .check-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const ev = card.dataset.event;
+      card.classList.toggle('checked');
+      if (card.classList.contains('checked')) {
+        if (!selectedEvents.includes(ev)) selectedEvents.push(ev);
+      } else {
+        selectedEvents = selectedEvents.filter(e => e !== ev);
+        delete dayConfig[ev];
+      }
+      document.getElementById('cbToStep2').disabled = selectedEvents.length === 0;
+    });
+  });
+
+  function renderDayPanels() {
+    const wrap = document.getElementById('cbDayPanels');
+    wrap.innerHTML = '';
+    selectedEvents.forEach(ev => {
+      if (!dayConfig[ev]) dayConfig[ev] = { service:'combo', coverage:['indoor'], duration:'half', photoTeam:'any', cinemaTeam:'any' };
+      const cfg = dayConfig[ev];
+      const showPhotoChief = cfg.service === 'photo' || cfg.service === 'combo';
+      const showCinemaChief = cfg.service === 'cinema' || cfg.service === 'combo';
+
+      let chiefHtml = '';
+      if (showPhotoChief) {
+        chiefHtml += `<div class="cb-field-label">ফটোগ্রাফার নির্বাচন</div>
+          <div class="cb-opt-row team-row" data-role="photoTeam" data-event="${ev}">
+            <div class="cb-opt-btn ${cfg.photoTeam!=='chief'?'selected':''}" data-val="any">দ্বিতীয় অধ্যায় টিম থেকে যেকোনো একজন</div>
+            <div class="cb-opt-btn ${cfg.photoTeam==='chief'?'selected':''}" data-val="chief">চীফ ফটোগ্রাফার — জিহাদী ইসলাম নুর</div>
+          </div>`;
+      }
+      if (showCinemaChief) {
+        chiefHtml += `<div class="cb-field-label">সিনেমাটোগ্রাফার নির্বাচন</div>
+          <div class="cb-opt-row team-row" data-role="cinemaTeam" data-event="${ev}">
+            <div class="cb-opt-btn ${cfg.cinemaTeam!=='chief'?'selected':''}" data-val="any">দ্বিতীয় অধ্যায় টিম থেকে যেকোনো একজন</div>
+            <div class="cb-opt-btn ${cfg.cinemaTeam==='chief'?'selected':''}" data-val="chief">চীফ সিনেমাটোগ্রাফার — জাহিদ হাসান মুন্না</div>
+          </div>`;
+      }
+
+      const div = document.createElement('div');
+      div.className = 'day-panel';
+      div.innerHTML = `
+        <div class="day-head">${EVENT_ICON[ev]} ${EVENT_LABELS[ev]}</div>
+        <div class="day-body">
+          <div class="cb-field-label">সার্ভিস</div>
+          <div class="cb-opt-row" data-role="service" data-event="${ev}">
+            <div class="cb-opt-btn ${cfg.service==='photo'?'selected':''}" data-val="photo">ফটোগ্রাফি</div>
+            <div class="cb-opt-btn ${cfg.service==='cinema'?'selected':''}" data-val="cinema">সিনেমাটোগ্রাফি</div>
+            <div class="cb-opt-btn ${cfg.service==='combo'?'selected':''}" data-val="combo">উভয়ই</div>
+          </div>
+          <div class="cb-field-label">কভারেজ (একাধিক নির্বাচন করা যাবে)</div>
+          <div class="cb-opt-row" data-role="coverage" data-event="${ev}">
+            <div class="cb-opt-btn ${cfg.coverage.includes('indoor')?'selected':''}" data-val="indoor">ইনডোর</div>
+            <div class="cb-opt-btn ${cfg.coverage.includes('outdoor')?'selected':''}" data-val="outdoor">আউটডোর</div>
+          </div>
+          <div class="cb-field-label">সময়কাল</div>
+          <div class="cb-opt-row" data-role="duration" data-event="${ev}">
+            <div class="cb-opt-btn ${cfg.duration==='short'?'selected':''}" data-val="short">৩ ঘন্টা</div>
+            <div class="cb-opt-btn ${cfg.duration==='half'?'selected':''}" data-val="half">৫ ঘন্টা</div>
+            <div class="cb-opt-btn ${cfg.duration==='full'?'selected':''}" data-val="full">পুরো ইভেন্ট</div>
+          </div>
+          ${chiefHtml}
+        </div>`;
+      wrap.appendChild(div);
+    });
+
+    wrap.querySelectorAll('.cb-opt-row').forEach(row => {
+      const role = row.dataset.role, ev = row.dataset.event;
+      row.querySelectorAll('.cb-opt-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (role === 'coverage') {
+            const val = btn.dataset.val;
+            const cov = dayConfig[ev].coverage;
+            if (cov.includes(val)) { if (cov.length > 1) cov.splice(cov.indexOf(val),1); }
+            else cov.push(val);
+            btn.classList.toggle('selected');
+          } else {
+            row.querySelectorAll('.cb-opt-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            dayConfig[ev][role] = btn.dataset.val;
+            if (role === 'service') renderDayPanels();
+          }
+        });
+      });
+    });
+
+  }
+
+  window.cbCalculateEstimate = function() {
+    let minTotal = 0, maxTotal = 0;
+    const rows = [];
+    selectedEvents.forEach(ev => {
+      const cfg = dayConfig[ev];
+      let min, max, chiefNote = '';
+
+      const wantsChief = (cfg.service === 'combo' && (cfg.photoTeam === 'chief' || cfg.cinemaTeam === 'chief'))
+        || (cfg.service === 'photo' && cfg.photoTeam === 'chief')
+        || (cfg.service === 'cinema' && cfg.cinemaTeam === 'chief');
+
+      if (cfg.service === 'combo' && wantsChief) {
+        min = max = CHIEF_PRICE.combo;
+        chiefNote = ' · চীফ টিম: জিহাদী ইসলাম নুর + জাহিদ হাসান মুন্না';
+      } else if (cfg.service === 'photo' && cfg.photoTeam === 'chief') {
+        min = max = CHIEF_PRICE.photo;
+        chiefNote = ' · চীফ ফটোগ্রাফার: জিহাদী ইসলাম নুর';
+      } else if (cfg.service === 'cinema' && cfg.cinemaTeam === 'chief') {
+        min = max = CHIEF_PRICE.cinema;
+        chiefNote = ' · চীফ সিনেমাটোগ্রাফার: জাহিদ হাসান মুন্না';
+      } else {
+        [min, max] = ANY_PRICE[cfg.service];
+        chiefNote = ' · টিম: দ্বিতীয় অধ্যায় টিম (যেকোনো সদস্য)';
+      }
+
+      minTotal += min; maxTotal += max;
+      rows.push({
+        ev, min, max,
+        meta: `${SERVICE_LABELS[cfg.service]} · ${cfg.coverage.map(c=>c==='indoor'?'ইনডোর':'আউটডোর').join('+')} · ${DURATION_LABELS[cfg.duration]}${chiefNote}`
+      });
+    });
+
+    let discount = 0;
+    if (selectedEvents.length === 2) discount = 0.10;
+    else if (selectedEvents.length >= 3) discount = 0.15;
+
+    const finalMin = Math.round(minTotal * (1-discount) / 500) * 500;
+    const finalMax = Math.round(maxTotal * (1-discount) / 500) * 500;
+
+    lastEstimate = { rows, minTotal, maxTotal, discount, finalMin, finalMax };
+
+    document.getElementById('cbEstimateTotal').innerHTML =
+      `৳${finalMin.toLocaleString('bn-BD')} <span>– ৳${finalMax.toLocaleString('bn-BD')}</span>`;
+
+    document.getElementById('cbComboBadgeWrap').innerHTML = discount > 0
+      ? `<div class="combo-badge">🎉 কম্বো ছাড় ${Math.round(discount*100)}% প্রয়োগ করা হয়েছে</div>` : '';
+
+    document.getElementById('cbBreakdownList').innerHTML = rows.map(r => `
+      <div class="breakdown-row">
+        <div><div class="bd-name">${EVENT_ICON[r.ev]} ${EVENT_LABELS[r.ev]}</div><div class="bd-meta">${r.meta}</div></div>
+        <div class="bd-price">৳${r.min.toLocaleString('bn-BD')}${r.min!==r.max ? '–'+r.max.toLocaleString('bn-BD') : ''}</div>
+      </div>`).join('');
+  };
+
+  window.cbCheckBudget = function() {
+    const val = parseInt(document.getElementById('cbBudgetInput').value);
+    const box = document.getElementById('cbBudgetResult');
+    if (!val || val <= 0) { cbToast('একটি সঠিক বাজেট লিখুন'); return; }
+    if (!lastEstimate) { cbToast('আগে এস্টিমেট দেখুন'); return; }
+    let msg;
+    if (val >= lastEstimate.finalMin) {
+      msg = `<strong>দারুণ!</strong> এই বাজেটে আপনার নির্বাচিত সব চাহিদা পূরণ হওয়ার সম্ভাবনা আছে। আমরা আপনার সাথে যোগাযোগ করে চূড়ান্ত প্যাকেজ ঠিক করব।`;
+    } else {
+      const pct = Math.round((val/lastEstimate.finalMin)*100);
+      msg = `আপনার বাজেট আমাদের এস্টিমেটের প্রায় ${pct}%। এই বাজেটে হয়তো কিছু অপশন সমন্বয় করতে হতে পারে। সরাসরি যোগাযোগ করলে আমরা আপনার বাজেটে সেরা সমাধান দেব।`;
+    }
+    box.innerHTML = msg;
+    box.classList.add('show');
+  };
+
+  function buildSummaryText() {
+    if (!lastEstimate) return 'কাস্টম প্যাকেজ অনুরোধ';
+    let lines = ['*কাস্টম প্যাকেজ অনুরোধ — দ্বিতীয় অধ্যায়*', ''];
+    const name = (document.getElementById('cbNameInput')||{}).value;
+    const phone = (document.getElementById('cbPhoneInput')||{}).value;
+    if (name) lines.push(`নাম: ${name}`);
+    if (phone) lines.push(`মোবাইল: ${phone}`);
+    if (name || phone) lines.push('');
+    lastEstimate.rows.forEach(r => lines.push(`${EVENT_LABELS[r.ev]}: ${r.meta}`));
+    lines.push('');
+    lines.push(`আনুমানিক খরচ: ৳${lastEstimate.finalMin.toLocaleString('bn-BD')} – ৳${lastEstimate.finalMax.toLocaleString('bn-BD')}`);
+    const budget = document.getElementById('cbBudgetInput').value;
+    if (budget) lines.push(`বাজেট: ৳${budget}`);
+    return lines.join('\n');
+  }
+  function updateWhatsAppLink() {
+    const text = encodeURIComponent(buildSummaryText());
+    document.getElementById('cbWaBtn').href = `https://wa.me/8801774284200?text=${text}`;
+  }
+  window.cbCopySummary = function() {
+    navigator.clipboard.writeText(buildSummaryText())
+      .then(() => cbToast('সামারি কপি হয়েছে!'))
+      .catch(() => cbToast('কপি করা যায়নি, ম্যানুয়ালি সিলেক্ট করুন'));
+  };
+  function cbToast(msg) {
+    let t = document.getElementById('cbToast');
+    if (!t) {
+      t = document.createElement('div');
+      t.id = 'cbToast';
+      t.className = 'cb-toast';
+      document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
+})();
+</script>
 
 <script>
 (function() {
