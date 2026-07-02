@@ -1385,9 +1385,12 @@ if ('serviceWorker' in navigator) {
     }
 
     try {
-      const res = await fetch(SUBMIT_ENDPOINT, { method: 'POST', body: JSON.stringify(payload) });
-      const json = await res.json().catch(() => ({ status: 'success' }));
-      if (json.status === 'error') throw new Error(json.message || 'unknown');
+      await fetch(SUBMIT_ENDPOINT, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
       document.getElementById('cbFormWrap').style.display = 'none';
       document.getElementById('cbSuccessWrap').style.display = '';
     } catch (err) {
